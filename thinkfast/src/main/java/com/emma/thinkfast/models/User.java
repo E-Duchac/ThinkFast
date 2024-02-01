@@ -1,21 +1,28 @@
 package com.emma.thinkfast.models;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import com.emma.thinkfast.enums.Category;
+import com.emma.thinkfast.enums.Role;
 
-public class User {
+public class User implements UserDetails {
     @Id
     private String _id;
     private String firstName;
     private String lastName;
     private String email;
-    private List<Category> faveCategories;
-
-    private String encPw;
+    private String encPassword;
     private String pwSalt;
+    private String username;
+    private Role role;
+    private List<GrantedAuthority> authorities;
+
+    private List<Category> faveCategories;
 
     public User() {
         super();
@@ -61,20 +68,20 @@ public class User {
         this.faveCategories = faveCategories;
     }
 
-    public String getEncPw() {
-        return encPw;
-    }
-
-    public void setEncPw(String encPw) {
-        this.encPw = encPw;
-    }
-
     public String getPwSalt() {
         return pwSalt;
     }
 
     public void setPwSalt(String pwSalt) {
         this.pwSalt = pwSalt;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
     }
 
     @Override
@@ -86,8 +93,11 @@ public class User {
         result = prime * result + ((lastName == null) ? 0 : lastName.hashCode());
         result = prime * result + ((email == null) ? 0 : email.hashCode());
         result = prime * result + ((faveCategories == null) ? 0 : faveCategories.hashCode());
-        result = prime * result + ((encPw == null) ? 0 : encPw.hashCode());
+        result = prime * result + ((encPassword == null) ? 0 : encPassword.hashCode());
+        result = prime * result + ((username == null) ? 0 : username.hashCode());
         result = prime * result + ((pwSalt == null) ? 0 : pwSalt.hashCode());
+        result = prime * result + ((role == null) ? 0 : role.hashCode());
+        result = prime * result + ((authorities == null) ? 0 : authorities.hashCode());
         return result;
     }
 
@@ -125,15 +135,30 @@ public class User {
                 return false;
         } else if (!faveCategories.equals(other.faveCategories))
             return false;
-        if (encPw == null) {
-            if (other.encPw != null)
+        if (username == null) {
+            if (other.username != null)
                 return false;
-        } else if (!encPw.equals(other.encPw))
+        } else if (!username.equals(other.username))
+            return false;
+        if (encPassword == null) {
+            if (other.encPassword != null)
+                return false;
+        } else if (!encPassword.equals(other.encPassword))
             return false;
         if (pwSalt == null) {
             if (other.pwSalt != null)
                 return false;
         } else if (!pwSalt.equals(other.pwSalt))
+            return false;
+        if (role == null) {
+            if (other.role == null)
+                return false;
+        } else if (!role.equals(other.role))
+            return false;
+        if (authorities == null) {
+            if (other.authorities == null)
+                return false;
+        } else if (!authorities.equals(other.authorities))
             return false;
         return true;
     }
@@ -141,13 +166,45 @@ public class User {
     @Override
     public String toString() {
         return "User [_id=" + _id + ", firstName=" + firstName + ", lastName=" + lastName + ", email=" + email
-                + ", faveCategories=" + faveCategories + ", encPw=" + encPw + ", pwSalt=" + pwSalt + "]";
+                + ", faveCategories=" + faveCategories + ", encPassword=" + encPassword + ", pwSalt=" + pwSalt + "]";
     }
 
-    /* 
-    Need to record a password, salt, etc...may need to build
-    a microservice structure specifically for security.
-    */
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return authorities;
+    }
 
-    
+    @Override
+    public String getPassword() {
+        return encPassword;
+    }
+
+    @Override
+    public String getUsername() {
+        return username;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'isAccountNonExpired'");
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'isAccountNonLocked'");
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'isCredentialsNonExpired'");
+    }
+
+    @Override
+    public boolean isEnabled() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'isEnabled'");
+    }
 }

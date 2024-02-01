@@ -15,7 +15,7 @@ import com.emma.thinkfast.repositories.UserRepository;
 @RestController
 @RequestMapping("/user")
 public class UserController {
-    private final UserRepository userRepo;
+    private UserRepository userRepo;
 
     @Autowired
     public UserController(UserRepository userRepo) {
