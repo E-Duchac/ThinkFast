@@ -2,7 +2,11 @@ package com.emma.thinkfast.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,7 +24,7 @@ public class QuestionController {
         this.questionRepo = questionRepo;
     }
 
-    @PostMapping("/saveQuestion")
+    @PostMapping("/createQuestion")
     public ResponseEntity<String> saveQuestion(@RequestBody Question question) {
         try {
             Question savedQuestion = questionRepo.save(question);
@@ -28,5 +32,20 @@ public class QuestionController {
         } catch (Exception e) {
             return ResponseEntity.ok("Question not saved, exception encountered: " + e.getStackTrace());
         }
+    }
+
+    @GetMapping("/getQuestionById/{questionId}")
+    public ResponseEntity<String> getQuestionById(@PathVariable String questionId) {
+        return ResponseEntity.ok("stubbed getQuestionById");
+    }
+
+    @PutMapping("/updateQuestion/{questionId}")
+    public ResponseEntity<String> updateQuestion(@PathVariable String questionId, @RequestBody Question newQuestionDoc) {
+        return ResponseEntity.ok("stubbed updateQuestion");
+    }
+
+    @DeleteMapping("/deleteQuestion/{questionId}")
+    public ResponseEntity<String> deleteQuestion(@PathVariable String questionId) {
+        return ResponseEntity.ok("stubbed deleteQuestion");
     }
 }
