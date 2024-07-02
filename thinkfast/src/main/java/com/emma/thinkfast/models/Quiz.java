@@ -9,7 +9,7 @@ import com.emma.thinkfast.enums.Category;
 public class Quiz {
     @Id
     private String _id;
-    private Category category;
+    private String description;
     private List<String> questionIds;
 
     public Quiz() {
@@ -24,12 +24,12 @@ public class Quiz {
         this._id = _id;
     }
 
-    public Category getCategory() {
-        return category;
+    public String getDescription() {
+        return description;
     }
 
-    public void setCategory(Category category) {
-        this.category = category;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public List<String> getQuestionIds() {
@@ -45,7 +45,7 @@ public class Quiz {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((_id == null) ? 0 : _id.hashCode());
-        result = prime * result + ((category == null) ? 0 : category.hashCode());
+        result = prime * result + ((description == null) ? 0 : description.hashCode());
         result = prime * result + ((questionIds == null) ? 0 : questionIds.hashCode());
         return result;
     }
@@ -64,7 +64,7 @@ public class Quiz {
                 return false;
         } else if (!_id.equals(other._id))
             return false;
-        if (category != other.category)
+        if (description != other.description)
             return false;
         if (questionIds == null) {
             if (other.questionIds != null)
@@ -76,6 +76,6 @@ public class Quiz {
 
     @Override
     public String toString() {
-        return "Quiz [_id=" + _id + ", category=" + category + ", questionIds=" + questionIds + "]";
+        return "[id=" + _id + ", description=" + description + ", questionIds=" + questionIds + "]";
     }
 }

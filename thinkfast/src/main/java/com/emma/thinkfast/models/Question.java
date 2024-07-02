@@ -12,7 +12,6 @@ public class Question {
     private String questionText;
     private List<String> answerText;
     private Category category;
-    private String quizId;
 
     public Question() {
         super();
@@ -50,14 +49,6 @@ public class Question {
         this.category = category;
     }
 
-    public String getQuizId() {
-        return quizId;
-    }
-
-    public void setQuizId(String quizId) {
-        this.quizId = quizId;
-    }
-
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -66,7 +57,6 @@ public class Question {
         result = prime * result + ((questionText == null) ? 0 : questionText.hashCode());
         result = prime * result + ((answerText == null) ? 0 : answerText.hashCode());
         result = prime * result + ((category == null) ? 0 : category.hashCode());
-        result = prime * result + ((quizId == null) ? 0 : quizId.hashCode());
         return result;
     }
 
@@ -96,17 +86,12 @@ public class Question {
             return false;
         if (category != other.category)
             return false;
-        if (quizId == null) {
-            if (other.quizId != null)
-                return false;
-        } else if (!quizId.equals(other.quizId))
-            return false;
         return true;
     }
 
     @Override
     public String toString() {
-        return "Question [_id=" + _id + ", questionText=" + questionText + ", answerText=" + answerText + ", category="
-                + category + ", quizId=" + quizId + "]";
+        return "[id=" + _id + ", questionText=" + questionText + ", answerText=" + answerText + ", category="
+                + category + "]";
     }
 }

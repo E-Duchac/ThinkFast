@@ -1,6 +1,10 @@
 package com.emma.thinkfast.controllers;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,11 +17,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.emma.thinkfast.models.Question;
 import com.emma.thinkfast.repositories.QuestionRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
 @RequestMapping("/question")
 public class QuestionController {
     private final QuestionRepository questionRepo;
+    private static final Logger logger = Logger.getLogger(QuestionController.class.getName());
+
 
     @Autowired
     public QuestionController(QuestionRepository questionRepo) {
@@ -28,9 +35,13 @@ public class QuestionController {
     public ResponseEntity<String> saveQuestion(@RequestBody Question question) {
         try {
             Question savedQuestion = questionRepo.save(question);
-            return ResponseEntity.ok("Question saved: " + savedQuestion);
+            logger.log(Level.INFO, "Question saved. ", question.toString());
+            ObjectMapper obMap = new ObjectMapper();
+            return ResponseEntity.ok(obMap.writeValueAsString(savedQuestion));
         } catch (Exception e) {
-            return ResponseEntity.ok("Question not saved, exception encountered: " + e.getStackTrace());
+            logger.log(Level.WARNING, "Question not saved, exception encountered: ", e.getStackTrace());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Question not saved, exception encountered: " + e.getStackTrace());
         }
     }
 
