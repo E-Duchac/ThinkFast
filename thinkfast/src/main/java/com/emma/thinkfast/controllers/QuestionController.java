@@ -1,9 +1,13 @@
 package com.emma.thinkfast.controllers;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -31,11 +35,14 @@ public class QuestionController {
         this.questionRepo = questionRepo;
     }
 
+    /* Considering not exposing this endpoint at all; why create questions 
+     * one-by-one instead of uploading whole .csv files to the database?
+     */
     @PostMapping("/createQuestion")
     public ResponseEntity<String> saveQuestion(@RequestBody Question question) {
         try {
             Question savedQuestion = questionRepo.save(question);
-            logger.log(Level.INFO, "Question saved. ", question.toString());
+            logger.log(Level.INFO, "Question saved: {}", question);
             ObjectMapper obMap = new ObjectMapper();
             return ResponseEntity.ok(obMap.writeValueAsString(savedQuestion));
         } catch (Exception e) {
@@ -47,7 +54,23 @@ public class QuestionController {
 
     @GetMapping("/getQuestionById/{questionId}")
     public ResponseEntity<String> getQuestionById(@PathVariable String questionId) {
-        return ResponseEntity.ok("stubbed getQuestionById");
+        Optional<Question> question = questionRepo.findById(questionId);
+        try {
+            logger.log(Level.INFO, "Question found: {}", question);
+            return ResponseEntity.ok(question.toString());
+        }
+        catch (NullPointerException npe) {
+            logger.log(Level.WARNING, "Question by id " + questionId + " not found: ", npe.getStackTrace());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body("Question by id " + questionId + " not found: " + npe.getStackTrace());
+        }
+    }
+
+    @GetMapping("/getAllQuestionsByCategory/{category}")
+    public ResponseEntity<String> getAllQuestionsByCategory(@PathVariable String category) {
+        Query query = new Query(Criteria.where("category").is(category));
+        List<Question> questionList = questionRepo.find(query, Question.class);
+        return ResponseEntity.ok("stubbed getQuestionByCategory");
     }
 
     @PutMapping("/updateQuestion/{questionId}")
