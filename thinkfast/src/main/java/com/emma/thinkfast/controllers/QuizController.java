@@ -27,6 +27,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @RestController
 @RequestMapping("/quiz")
 public class QuizController {
+    /*
     private final QuizRepository quizRepo;
     private static final Logger logger = Logger.getLogger(QuizController.class.getName());
 
@@ -34,7 +35,7 @@ public class QuizController {
     public QuizController(QuizRepository quizRepo) {
         this.quizRepo = quizRepo;
     }
-
+        
     @PostMapping("/createQuiz")
     public ResponseEntity<String> createQuiz(@RequestBody Quiz quiz) {
         try {
@@ -72,6 +73,7 @@ public class QuizController {
                 .body("Quiz not found, unknown exception: " + e.getStackTrace());
         }
     }
+    */
 
     @GetMapping("/listQuizzesByCategory/{category}")
     public ResponseEntity<String> listQuizzesByCategory(@PathVariable String category) {

@@ -1,13 +1,11 @@
 package com.emma.thinkfast.controllers;
 
-import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -28,7 +26,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class QuestionController {
     private final QuestionRepository questionRepo;
     private static final Logger logger = Logger.getLogger(QuestionController.class.getName());
-
 
     @Autowired
     public QuestionController(QuestionRepository questionRepo) {
@@ -54,13 +51,13 @@ public class QuestionController {
 
     @GetMapping("/getQuestionById/{questionId}")
     public ResponseEntity<String> getQuestionById(@PathVariable String questionId) {
-        Optional<Question> question = questionRepo.findById(questionId);
         try {
+            Optional<Question> question = questionRepo.findById(questionId);
             logger.log(Level.INFO, "Question found: {}", question);
             return ResponseEntity.ok(question.toString());
         }
         catch (NullPointerException npe) {
-            logger.log(Level.WARNING, "Question by id " + questionId + " not found: ", npe.getStackTrace());
+            logger.log(Level.WARNING, "Question with id {} not found: ", questionId);
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body("Question by id " + questionId + " not found: " + npe.getStackTrace());
         }
@@ -68,8 +65,6 @@ public class QuestionController {
 
     @GetMapping("/getAllQuestionsByCategory/{category}")
     public ResponseEntity<String> getAllQuestionsByCategory(@PathVariable String category) {
-        Query query = new Query(Criteria.where("category").is(category));
-        List<Question> questionList = questionRepo.find(query, Question.class);
         return ResponseEntity.ok("stubbed getQuestionByCategory");
     }
 

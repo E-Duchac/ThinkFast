@@ -1,4 +1,25 @@
 {
-    "java.configuration.updateBuildConfiguration": "interactive",
-    "java.compile.nullAnalysis.mode": "automatic"
+    "java.configuration.runtimes": [
+        {
+            "name": "JavaSE-1.8",
+            "path": "C:\\Program Files\\Java\\jdk-1.8",
+            "default": true
+        }
+    ],
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "java.compile.nullAnalysis.mode": "automatic",
+    "maven.view": "hierarchical",
+    "maven.pomfile.autoUpdateEffectivePOM": true,
+    "maven.executable.preferMavenWrapper": false,
+    "maven.dependency.enableConflictDiagnostics": true,
+    "java.maven.updateSnapshots": false,
+    "maven.terminal.useJavaHome": true,
+    "java.compile.nullAnalysis.nullable": [
+
+        "javax.annotation.Nullable",
+        "org.eclipse.jdt.annotation.Nullable",
+        "org.springframework.lang.Nullable"
+    ],
+    "maven.compiler.source": "1.8",
+    "maven.compiler.target": "1.8"
 }
