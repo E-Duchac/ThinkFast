@@ -27,6 +27,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class QuestionController {
     private final QuestionRepository questionRepo;
     private static final Logger logger = Logger.getLogger(QuestionController.class.getName());
+    
 
     @Autowired
     public QuestionController(QuestionRepository questionRepo) {
@@ -61,7 +62,7 @@ public class QuestionController {
             logger.log(Level.WARNING, "Fetch failed; question with id {0} not found: {1}", 
                 new Object[]{questionId, Arrays.toString(npe.getStackTrace())});
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body("Fetch failed; question with id " + questionId + " not found.");
+                .body("Fetch failed; question not found with id " + questionId);
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Fetch failed; unexpected exception occured: {}", Arrays.toString(e.getStackTrace()));
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
@@ -80,7 +81,7 @@ public class QuestionController {
             logger.log(Level.WARNING, "Fetch failed; questions with category {0} not found: {1}",
                 new Object[]{category, Arrays.toString(npe.getStackTrace())});
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body("Fetch failed; question with category " + category + " not found.");
+                .body("Fetch failed; question not found with category " + category);
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Fetch failed; unexpected exception occured: {}", Arrays.toString(e.getStackTrace()));
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("Unexpected exception occured. Please try again or reach out to notify us of issue.");
@@ -99,7 +100,7 @@ public class QuestionController {
             logger.log(Level.WARNING, "Update failed; question with id {0} not found: {1}", 
                 new Object[]{questionId, Arrays.toString(npe.getStackTrace())});
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body("Update failed; question with " + questionId + " not found.");
+                .body("Update failed; question not found with id " + questionId);
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Update failed; unexpected exception occured: {}", Arrays.toString(e.getStackTrace()));
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
@@ -118,7 +119,7 @@ public class QuestionController {
             logger.log(Level.WARNING, "Deletion failed; question with id {0} not found: {1}", 
                 new Object[]{questionId, Arrays.toString(npe.getStackTrace())});
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body("Deletion failed; question with id " + questionId  + " not found.");
+                .body("Deletion failed; question not found with id " + questionId);
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Deletion failed; unexpected exception occured: {}", Arrays.toString(e.getStackTrace()));
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
