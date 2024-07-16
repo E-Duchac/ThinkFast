@@ -2,7 +2,6 @@ package com.emma.thinkfast.controllers;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -45,9 +44,9 @@ public class QuestionController {
             ObjectMapper obMap = new ObjectMapper();
             return ResponseEntity.ok(obMap.writeValueAsString(savedQuestion));
         } catch (Exception e) {
-            logger.log(Level.WARNING, "Question not saved, exception encountered: ", e.getStackTrace());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Question not saved, exception encountered: " + e.getStackTrace());
+            logger.log(Level.WARNING, "Save failed; exception encountered: ", e.getStackTrace());
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
+                .body("Save failed; exception encountered: " + e.getStackTrace());
         }
     }
 
@@ -58,12 +57,15 @@ public class QuestionController {
             Question question = optQuestion.get();
             logger.log(Level.INFO, "Question found: {}", question);
             return ResponseEntity.ok(question.toString());
-        }
-        catch (NullPointerException npe) {
-            logger.log(Level.WARNING, "Question with id {0} not found: {1}", 
+        } catch (NullPointerException npe) {
+            logger.log(Level.WARNING, "Fetch failed; question with id {0} not found: {1}", 
                 new Object[]{questionId, Arrays.toString(npe.getStackTrace())});
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body("Question with id " + questionId + " not found.");
+                .body("Fetch failed; question with id " + questionId + " not found.");
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Fetch failed; unexpected exception occured: {}", Arrays.toString(e.getStackTrace()));
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
+                .body("Unexpected exception occured. Please try again or reach out to notify us of issue.");
         }
     }
 
@@ -72,23 +74,55 @@ public class QuestionController {
         try {
             List<Question> questionList = questionRepo.findByCategory(category);
             logger.log(Level.INFO, "{0} {1} question(s) found: {2}", 
-            new Object[]{questionList.size(), category, Arrays.toString(questionList.toArray())});
+                new Object[]{questionList.size(), category, Arrays.toString(questionList.toArray())});
             return ResponseEntity.ok(Arrays.toString(questionList.toArray()));
         } catch (NullPointerException npe) {
-            logger.log(Level.WARNING, "Questions with category {0} not found: {1}",
+            logger.log(Level.WARNING, "Fetch failed; questions with category {0} not found: {1}",
                 new Object[]{category, Arrays.toString(npe.getStackTrace())});
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body("Question with category " + category + " not found.");
+                .body("Fetch failed; question with category " + category + " not found.");
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Fetch failed; unexpected exception occured: {}", Arrays.toString(e.getStackTrace()));
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("Unexpected exception occured. Please try again or reach out to notify us of issue.");
         }
     }
 
     @PutMapping("/updateQuestion/{questionId}")
     public ResponseEntity<String> updateQuestion(@PathVariable String questionId, @RequestBody Question newQuestionDoc) {
-        return ResponseEntity.ok("stubbed updateQuestion");
+        try {
+            newQuestionDoc.set_id(questionId);
+            Optional<Question> question = questionRepo.updateById(newQuestionDoc);
+            logger.log(Level.INFO, "Question with id {0} updated to: {1}",
+                new Object[]{questionId, newQuestionDoc});
+            return ResponseEntity.ok("Question with id " + questionId + " updated to: " + question.get());
+        } catch (NullPointerException npe) {
+            logger.log(Level.WARNING, "Update failed; question with id {0} not found: {1}", 
+                new Object[]{questionId, Arrays.toString(npe.getStackTrace())});
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body("Update failed; question with " + questionId + " not found.");
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Update failed; unexpected exception occured: {}", Arrays.toString(e.getStackTrace()));
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
+                .body("Update failed; unexpected exception occured. Please try again or reach out to notify us of issue.");
+        }
     }
 
     @DeleteMapping("/deleteQuestion/{questionId}")
     public ResponseEntity<String> deleteQuestion(@PathVariable String questionId) {
-        return ResponseEntity.ok("stubbed deleteQuestion");
+        try {
+            Optional<Question> question = questionRepo.deleteById(questionId);
+            logger.log(Level.INFO, "Question with id {0} deleted: {1}", 
+                new Object[]{questionId, question.get()});
+            return ResponseEntity.ok(question.get().toString());
+        } catch (NullPointerException npe) {
+            logger.log(Level.WARNING, "Deletion failed; question with id {0} not found: {1}", 
+                new Object[]{questionId, Arrays.toString(npe.getStackTrace())});
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body("Deletion failed; question with id " + questionId  + " not found.");
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Deletion failed; unexpected exception occured: {}", Arrays.toString(e.getStackTrace()));
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
+                .body("Deletion failed; unexpected exception occured. Please try again or reach out to notify us of issue.");
+        }
     }
 }

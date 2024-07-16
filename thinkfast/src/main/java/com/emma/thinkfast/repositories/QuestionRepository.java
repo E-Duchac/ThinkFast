@@ -33,7 +33,7 @@ public class QuestionRepository {
         return question;
     }
 
-    public Optional<Question> findById(String questionId) throws NoSuchElementException {
+    public Optional<Question> findById(String questionId) {
         Document document = collection.find(new Document("_id", questionId)).first();
         return Optional.of(QuestionUtils.DocumentToQuestion(document));
     }
@@ -45,5 +45,17 @@ public class QuestionRepository {
             questionList.add(QuestionUtils.DocumentToQuestion(document));
         }
         return questionList;
+    }
+
+    public Optional<Question> updateById(Question question) {
+        Document document = collection.findOneAndReplace(
+            collection.find(new Document("_id", question.get_id())).first(), 
+            QuestionUtils.QuestionToDocument(question));
+        return Optional.of(QuestionUtils.DocumentToQuestion(document));
+    }
+
+    public Optional<Question> deleteById(String questionId) {
+        Document document = collection.findOneAndDelete(new Document("_id", questionId));
+        return Optional.of(QuestionUtils.DocumentToQuestion(document));
     }
 }
