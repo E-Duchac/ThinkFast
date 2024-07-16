@@ -38,7 +38,7 @@ public class QuestionRepository {
         return Optional.of(QuestionUtils.DocumentToQuestion(document));
     }
 
-    public List<Question> findByCategory(Category category) {
+    public List<Question> findByCategory(String category) {
         List<Question> questionList = new ArrayList<>();
         FindIterable<Document> docList = collection.find(new Document("category", category));
         for (Document document : docList) {

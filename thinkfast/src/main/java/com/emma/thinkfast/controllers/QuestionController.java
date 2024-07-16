@@ -1,5 +1,7 @@
 package com.emma.thinkfast.controllers;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.logging.Level;
@@ -52,20 +54,32 @@ public class QuestionController {
     @GetMapping("/getQuestionById/{questionId}")
     public ResponseEntity<String> getQuestionById(@PathVariable String questionId) {
         try {
-            Optional<Question> question = questionRepo.findById(questionId);
+            Optional<Question> optQuestion = questionRepo.findById(questionId);
+            Question question = optQuestion.get();
             logger.log(Level.INFO, "Question found: {}", question);
             return ResponseEntity.ok(question.toString());
         }
         catch (NullPointerException npe) {
-            logger.log(Level.WARNING, "Question with id {} not found: ", questionId);
+            logger.log(Level.WARNING, "Question with id {0} not found: {1}", 
+                new Object[]{questionId, Arrays.toString(npe.getStackTrace())});
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body("Question by id " + questionId + " not found: " + npe.getStackTrace());
+                .body("Question with id " + questionId + " not found.");
         }
     }
 
-    @GetMapping("/getAllQuestionsByCategory/{category}")
+    @GetMapping("/getQuestionsByCategory/{category}")
     public ResponseEntity<String> getAllQuestionsByCategory(@PathVariable String category) {
-        return ResponseEntity.ok("stubbed getQuestionByCategory");
+        try {
+            List<Question> questionList = questionRepo.findByCategory(category);
+            logger.log(Level.INFO, "{0} {1} question(s) found: {2}", 
+            new Object[]{questionList.size(), category, Arrays.toString(questionList.toArray())});
+            return ResponseEntity.ok(Arrays.toString(questionList.toArray()));
+        } catch (NullPointerException npe) {
+            logger.log(Level.WARNING, "Questions with category {0} not found: {1}",
+                new Object[]{category, Arrays.toString(npe.getStackTrace())});
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body("Question with category " + category + " not found.");
+        }
     }
 
     @PutMapping("/updateQuestion/{questionId}")
