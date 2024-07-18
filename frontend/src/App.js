@@ -1,41 +1,26 @@
 // import logo from './logo.svg';
+import React from 'react';
+import {BrowserRouter as Router, Routes, Route} from 'react-router-dom';
+import Home from './pages/home';
+import Login from './pages/login';
+import Profile from './pages/profile';
+import SetupQuiz from './pages/setupQuiz';
+import TakeQuiz from './pages/takeQuiz';
+import QuizStatistics from './pages/quizStatistics';
 import './App.css';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        {/* <img src={logo} className="App-logo" alt="logo" /> */}
-        <h1>Welcome to ThinkFast!</h1>
-        <p>
-          {/* Edit <code>src/App.js</code> and save to reload. */}
-          <i>Quick Recall practice, for Academic Team to Trivia Night</i>
-        </p>
-        {/* <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a> */}
-      </header>
-      <body className="App-body">
-        <div className="photo-carousel">
-          <image>Placeholder for photo carousel</image>
-        </div>
-
-        <p>Log on, or choose one to get started!</p>
-
-        <div className="button-panel">
-            <button>I'm a student!</button>
-            <button>I'm an adult!</button>
-        </div>
-      </body>
-      <footer className="App-footer">
-          <p>All content © 2024 ThinkFast.com. All Rights Reserved</p>
-      </footer>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/setupQuiz" element={<SetupQuiz />} />
+        <Route path="/takeQuiz" element={<TakeQuiz />} />
+        <Route path="/quizStatistics" element={<QuizStatistics />} />
+      </Routes>
+    </Router>
   );
 }
 
