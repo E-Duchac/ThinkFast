@@ -1,36 +1,31 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
+import PhotoCarousel from '../components/PhotoCarousel';
 
 const Home = () => {
-    //const [userType, setUserType] = useState('');
+    const navigate = useNavigate();
 
-    function handleClick({userType}) {
-        alert("You clicked " + userType + "!");
+    const handleClick = (type) => {
+      //alert("You clicked " + type + "!");
+      navigate('/setupQuiz', {state: {userType: type}});
     }
 
     return (
     <div className="App">
-      <header className="App-header">
-        <h1>Welcome to ThinkFast!</h1>
-        <p>
-          <i>Quick Recall practice, from Academic Team to Trivia Night</i>
-        </p>
-      </header>
+      <Header />
       <body className="App-body">
-        <div className="photo-carousel">
-          <image>Placeholder for photo carousel</image>
+        <PhotoCarousel />
           <div className="login-panel">
             <p><a href="http://localhost:3000/login">Log in,</a> or choose one to get started!</p>
               <div>
-                <button onClick={handleClick} setUserType="student">I'm a student!</button>
-                <button onClick={handleClick} setUserType="adult">I'm an adult!</button>
+                <button value="student" onClick={(e) => handleClick(e.target.value)}>I'm a student!</button>
+                <button value="adult" onClick={(e) => handleClick(e.target.value)}>I'm an adult!</button>
               </div>
           </div>
-        </div>
-
       </body>
-      <footer className="App-footer">
-          <p>All content © 2024 ThinkFast.com. All Rights Reserved</p>
-      </footer>
+      <Footer />
     </div>
     );
 };
