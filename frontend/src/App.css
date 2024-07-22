@@ -60,6 +60,24 @@
   color: white;
 }
 
+.custom-quiz-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.quiz-categories {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.quiz-length {
+  display: flex;
+  flex-direction: row;
+  align-items: space-evenly;
+}
+
 /* .App-logo {
   height: 40vmin;
   pointer-events: none;

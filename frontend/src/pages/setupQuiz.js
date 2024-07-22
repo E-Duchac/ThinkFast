@@ -13,7 +13,8 @@ const SetupQuiz = () => {
         LANGUAGE_ARTS: false,
         SOCIAL_STUDIES: false,
         ARTS_HUMANITIES: false,
-    })
+    });
+    const [quizLength, setQuizLength] = useState(20);
     
     const handleToggle = ({target}) =>
         setCategories(s => ({ ...s, [target.name]: !s[target.name]}));
@@ -24,7 +25,8 @@ const SetupQuiz = () => {
             "\n\tScience: " + categories.SCIENCE +
             "\n\tLanguage Arts: " + categories.LANGUAGE_ARTS +
             "\n\tSocial Studies: " + categories.SOCIAL_STUDIES +
-            "\n\tArts & Humanities: " + categories.ARTS_HUMANITIES
+            "\n\tArts & Humanities: " + categories.ARTS_HUMANITIES +
+            "\n for a quiz of length " + quizLength + "."
         );
         navigate('/takeQuiz');
     }
@@ -37,18 +39,34 @@ const SetupQuiz = () => {
             {userType === 'student' ? 
                 (<div>
                     <h3>Custom Quiz Setup -- Academic Team Practice</h3>
-                    <form action={composeQuiz}>
-                        <p>Choose your Subject(s): </p>
-                        {Object.keys(categories).map(key => (
-                            <label key={key} id="category-checkbox">
-                                <input 
-                                type="checkbox"
-                                onChange={handleToggle}
-                                name={key}
-                                checked={categories[key]}/>
-                            {key}
-                            </label>
-                        ))}
+                    <form className="custom-quiz-form" /*action={composeQuiz}*/>
+                        
+
+                        <div className="quiz-categories">
+                            <p>Choose your Subject(s): </p>
+                            {Object.keys(categories).map(key => (
+                                <label key={key}>
+                                    <input 
+                                    type="checkbox"
+                                    onChange={handleToggle}
+                                    name={key}
+                                    checked={categories[key]}/>
+                                {key}
+                                </label>
+                            ))}
+                        </div>
+
+                        <div className="quiz-length">
+                            <p>Length of Quiz: </p>
+                            <select
+                                value={quizLength}
+                                onChange={e => setQuizLength(e.target.value)}>
+                                <option value={20}>20</option>
+                                <option value={50}>50</option>
+                                <option value={100}>100</option>
+                            </select>
+                        </div>
+
                         <button onClick={composeQuiz}>Compose Quiz!</button>
                     </form>
                 </div>) 
