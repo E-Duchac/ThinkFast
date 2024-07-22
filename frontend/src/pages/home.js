@@ -15,7 +15,7 @@ const Home = () => {
     return (
     <div className="App">
       <Header />
-      <body className="App-body">
+      <div className="App-body">
         <PhotoCarousel />
           <div className="login-panel">
             <p><a href="http://localhost:3000/login">Log in,</a> or choose one to get started!</p>
@@ -24,7 +24,7 @@ const Home = () => {
                 <button value="adult" onClick={(e) => handleClick(e.target.value)}>I'm an adult!</button>
               </div>
           </div>
-      </body>
+      </div>
       <Footer />
     </div>
     );

@@ -3,7 +3,7 @@ import React from "react";
 const PhotoCarousel = () => {
     return (
         <div className="photo-carousel">
-          <image>Placeholder for photo carousel</image>
+          <div>Placeholder for photo carousel</div>
         </div>
     );
 }

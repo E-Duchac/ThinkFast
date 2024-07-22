@@ -1,0 +1,1 @@
+const quizUrl = process.env.REACT_APP_QUIZ_URL;

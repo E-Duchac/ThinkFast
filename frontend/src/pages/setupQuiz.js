@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import { getQuestionsByCategory } from '../apis/QuestionAPI';
 
 const SetupQuiz = () => {
     const navigate = useNavigate();
@@ -19,7 +20,8 @@ const SetupQuiz = () => {
     const handleToggle = ({target}) =>
         setCategories(s => ({ ...s, [target.name]: !s[target.name]}));
 
-    const composeQuiz = () => {
+    const composeQuiz = (event) => {
+        event.preventDefault(); //prevents the form from immediately submitting
         alert("Form submitted! You clicked: " +
             "\n\tMath: " + categories.MATH +
             "\n\tScience: " + categories.SCIENCE +
@@ -28,7 +30,21 @@ const SetupQuiz = () => {
             "\n\tArts & Humanities: " + categories.ARTS_HUMANITIES +
             "\n for a quiz of length " + quizLength + "."
         );
-        navigate('/takeQuiz');
+        //Convert the Object to an Array
+        const categoriesArray = Object.entries(categories);
+        console.log(Array.isArray(categoriesArray));
+        categoriesArray.forEach(async ([categoryName, isSelected]) => {
+            if (isSelected) {
+                try {
+                    const response = await getQuestionsByCategory(categoryName);
+                    console.log(response);
+                } catch (error) {
+                    console.error('Error fetching questions :', error);
+                }
+            }
+        });
+
+        //navigate('/takeQuiz');
     }
 
     return (
