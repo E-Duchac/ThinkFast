@@ -8,9 +8,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -31,14 +29,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @CrossOrigin(origins = "*") //Remember to reconfigure!
 public class QuestionController {
     private final QuestionRepository questionRepo;
-    private final HttpHeaders headers;
     private static final Logger logger = Logger.getLogger(QuestionController.class.getName());
 
     @Autowired
     public QuestionController(QuestionRepository questionRepo) {
         this.questionRepo = questionRepo;
-        this.headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
     }
 
     /* Considering not exposing this endpoint at all; why create questions 
@@ -91,11 +86,11 @@ public class QuestionController {
             logger.log(Level.WARNING, "Fetch failed; questions with category {0} not found: {1}",
                 new Object[]{category, Arrays.toString(npe.getStackTrace())});
             //return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Fetch failed; question not found with category " + category);
-            return new ResponseEntity<>(questionList, headers, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(questionList, HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Fetch failed; unexpected exception occured: {}", Arrays.toString(e.getStackTrace()));
             //return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("Unexpected exception occured. Please try again or reach out to notify us of issue.");
-            return new ResponseEntity<>(questionList, headers, HttpStatus.EXPECTATION_FAILED);
+            return new ResponseEntity<>(questionList, HttpStatus.EXPECTATION_FAILED);
         }
     }
 
