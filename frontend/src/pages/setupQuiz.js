@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -20,30 +20,27 @@ const SetupQuiz = () => {
     const handleToggle = ({target}) =>
         setCategories(s => ({ ...s, [target.name]: !s[target.name]}));
 
-    const composeQuiz = (event) => {
-        event.preventDefault(); //prevents the form from immediately submitting
-        alert("Form submitted! You clicked: " +
-            "\n\tMath: " + categories.MATH +
-            "\n\tScience: " + categories.SCIENCE +
-            "\n\tLanguage Arts: " + categories.LANGUAGE_ARTS +
-            "\n\tSocial Studies: " + categories.SOCIAL_STUDIES +
-            "\n\tArts & Humanities: " + categories.ARTS_HUMANITIES +
-            "\n for a quiz of length " + quizLength + "."
-        );
-        //Convert the Object to an Array
+    const composeQuiz = async (event) => {
+        event.preventDefault();
         const categoriesArray = Object.entries(categories);
-        console.log(Array.isArray(categoriesArray));
-        categoriesArray.forEach(async ([categoryName, isSelected]) => {
+        const fetchPromises = categoriesArray.map(async ([categoryName, isSelected]) => {
             if (isSelected) {
                 try {
                     const response = await getQuestionsByCategory(categoryName);
-                    console.log(response);
+                    console.log("Questions for ${categoryName}: ", response);
+                    return response;
                 } catch (error) {
-                    console.error('Error fetching questions :', error);
+                    console.error("Error fetching questions for ${categoryName}: ", error);
+                    throw error;
                 }
             }
         });
-
+        try {
+            const results = await Promise.all(fetchPromises);
+            console.log("All questions fetched: ", results);
+        } catch (error) {
+            console.error("Error fetching one or more categories: ", error);
+        }
         //navigate('/takeQuiz');
     }
 

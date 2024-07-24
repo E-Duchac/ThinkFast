@@ -5,9 +5,11 @@ import java.util.List;
 import org.springframework.data.annotation.Id;
 
 import com.emma.thinkfast.enums.Category;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Question {
     @Id
+    @JsonProperty("id")
     private String _id;
     private String questionText;
     private List<String> answerText;
