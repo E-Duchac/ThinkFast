@@ -7,7 +7,6 @@ export const getQuestionsByCategory = async (category) => {
             throw new Error('Network response was not ok');
         }
         const data = await response.json();
-        console.log('Response body: ', response.body);
         console.log('Parsed JSON: ', data);
         return data;
     } catch (error) {
