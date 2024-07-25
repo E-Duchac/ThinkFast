@@ -20,8 +20,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.emma.thinkfast.enums.Category;
 import com.emma.thinkfast.models.Question;
 import com.emma.thinkfast.repositories.QuestionRepository;
+import com.emma.thinkfast.services.QuestionServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
@@ -29,11 +31,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @CrossOrigin(origins = "*") //Remember to reconfigure!
 public class QuestionController {
     private final QuestionRepository questionRepo;
+    private final QuestionServiceImpl questionService;
     private static final Logger logger = Logger.getLogger(QuestionController.class.getName());
 
     @Autowired
-    public QuestionController(QuestionRepository questionRepo) {
+    public QuestionController(QuestionRepository questionRepo, QuestionServiceImpl questionService) {
         this.questionRepo = questionRepo;
+        this.questionService = questionService;
     }
 
     /* Considering not exposing this endpoint at all; why create questions 
@@ -92,6 +96,19 @@ public class QuestionController {
             //return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("Unexpected exception occured. Please try again or reach out to notify us of issue.");
             return new ResponseEntity<>(questionList, HttpStatus.EXPECTATION_FAILED);
         }
+    }
+
+    @GetMapping("/composeCustomQuiz") //Not done yet, still needs error handling
+    public ResponseEntity<List<Question>> getQuestionsByMultiCategory(@RequestBody String[] categories, int noOfQuestions) {
+        List<Question> allResponses = new ArrayList<>();
+        for (String category : categories) {
+            List<Question> bodyResponse = getAllQuestionsByCategory(category).getBody();
+            if (bodyResponse != null && !bodyResponse.isEmpty()) {
+                allResponses.addAll(bodyResponse);
+            }
+        }
+        List<Question> scrambleTrimmedList = questionService.scrambleTrim(allResponses, noOfQuestions);
+        return ResponseEntity.ok(scrambleTrimmedList);
     }
 
     @PutMapping("/updateQuestion/{questionId}")
