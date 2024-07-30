@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.emma.thinkfast.enums.Category;
 import com.emma.thinkfast.models.Question;
 import com.emma.thinkfast.repositories.QuestionRepository;
 import com.emma.thinkfast.services.QuestionServiceImpl;

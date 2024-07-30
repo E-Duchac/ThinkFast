@@ -6,8 +6,11 @@ import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.springframework.stereotype.Service;
+
 import com.emma.thinkfast.models.Question;
 
+@Service
 public class QuestionServiceImpl implements QuestionService {
     private Random rand = new Random();
     private static final Logger logger = Logger.getLogger(QuestionServiceImpl.class.getName());
