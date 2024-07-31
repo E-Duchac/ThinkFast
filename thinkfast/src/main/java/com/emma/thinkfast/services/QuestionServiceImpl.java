@@ -23,7 +23,7 @@ public class QuestionServiceImpl implements QuestionService {
         if (questionList.size() < noOfQuestions) {
             logger.log(
                 Level.WARNING,
-                "Requested list size is longer than number of fetched questions; list will be {} long.",
+                "Requested list size is longer than number of fetched questions; list will be {0} long.",
                 questionList.size());
             noOfQuestions = questionList.size();
         }

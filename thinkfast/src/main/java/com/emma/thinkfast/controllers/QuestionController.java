@@ -18,9 +18,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.emma.thinkfast.models.Question;
+import com.emma.thinkfast.models.RequestDTO;
 import com.emma.thinkfast.repositories.QuestionRepository;
 import com.emma.thinkfast.services.QuestionServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -97,16 +99,19 @@ public class QuestionController {
         }
     }
 
-    @GetMapping("/composeCustomQuiz") //Not done yet, still needs error handling
-    public ResponseEntity<List<Question>> getQuestionsByMultiCategory(@RequestBody String[] categories, int noOfQuestions) {
+    @PostMapping("/composeCustomQuiz") //Not done yet, still needs error handling
+    public ResponseEntity<List<Question>> getQuestionsByMultiCategory(@RequestBody RequestDTO requestDTO) {
         List<Question> allResponses = new ArrayList<>();
-        for (String category : categories) {
+        for (String category : requestDTO.getCategories()) {
             List<Question> bodyResponse = getAllQuestionsByCategory(category).getBody();
             if (bodyResponse != null && !bodyResponse.isEmpty()) {
                 allResponses.addAll(bodyResponse);
             }
         }
-        List<Question> scrambleTrimmedList = questionService.scrambleTrim(allResponses, noOfQuestions);
+        logger.log(Level.INFO, "Categories: {0}", requestDTO.getCategories());
+        logger.log(Level.INFO, "Quiz length: {0}", requestDTO.getQuizLength());
+        List<Question> scrambleTrimmedList = questionService.scrambleTrim(allResponses, requestDTO.getQuizLength());
+        logger.log(Level.INFO, "Response body contents: {0}", scrambleTrimmedList);
         return ResponseEntity.ok(scrambleTrimmedList);
     }
 

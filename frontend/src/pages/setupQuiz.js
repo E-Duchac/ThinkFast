@@ -2,18 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import { getQuestionsByCategory } from '../apis/QuestionAPI';
+import { getQuestionsByCategory, composeCustomQuiz } from '../apis/QuestionAPI';
 
 const SetupQuiz = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const userType = location.state?.userType;
     const [categories, setCategories] = useState({
-        MATH: false,
+        MATHEMATICS: false,
         SCIENCE: false,
         LANGUAGE_ARTS: false,
         SOCIAL_STUDIES: false,
-        ARTS_HUMANITIES: false,
+        ARTS_HUMANITIES: false, 
     });
     const [quizLength, setQuizLength] = useState(20);
     
@@ -28,6 +28,7 @@ const SetupQuiz = () => {
                 try {
                     const response = await getQuestionsByCategory(categoryName);
                     console.log("Questions for ${categoryName}: ", response);
+                    
                     return response;
                 } catch (error) {
                     console.error("Error fetching questions for ${categoryName}: ", error);
@@ -37,11 +38,23 @@ const SetupQuiz = () => {
         });
         try {
             const results = await Promise.all(fetchPromises);
-            console.log("All questions fetched: ", results);
+            const allQuestions = results.flat().flat();
+            console.log("All questions: ", allQuestions);
+            navigate("/takeQuiz", {state: {questionList: allQuestions}})
         } catch (error) {
             console.error("Error fetching one or more categories: ", error);
         }
-        //navigate('/takeQuiz');
+        //navigate('/takeQuiz', {state: {questionList: }});
+    }
+
+    const composeQuiz2 = async (event) => {
+        event.preventDefault();
+        const categoriesArray = Object.entries(categories)
+        .filter(([categoryName, isSelected]) => isSelected)
+        .map(([categoryName]) => categoryName);
+        const results = await Promise.resolve(composeCustomQuiz(categoriesArray, quizLength));
+        console.log("All questions: ", results);
+        navigate('/takeQuiz', {state: {questionList: results}});
     }
 
     return (
@@ -80,7 +93,7 @@ const SetupQuiz = () => {
                             </select>
                         </div>
 
-                        <button onClick={composeQuiz}>Compose Quiz!</button>
+                        <button onClick={composeQuiz2}>Compose Quiz!</button>
                     </form>
                 </div>) 
                 : 
