@@ -54,7 +54,6 @@ const TakeQuiz = () => {
         );
         if (currentQuestionIndex === questionList.length - 1) {
             console.log("Quiz finished! Your score: " + score);
-            //Random adjustment to see if profile switched!
             setUserResponse("");
             setScore(0);
             //navigate away
