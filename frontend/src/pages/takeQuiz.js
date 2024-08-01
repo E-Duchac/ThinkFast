@@ -9,8 +9,8 @@ const TakeQuiz = () => {
     const questionList = location.state?.questionList;
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [userResponse, setUserResponse] = useState("");
-
-    //console.log(questionList[currentQuestionIndex]);
+    const [answerMatches, setAnswerMatches] = useState(null);
+    const [score, setScore] = useState(0);
 
     const Italic = ({children}) => <i>{children}</i>;
     const Bold = ({children}) => <b>{children}</b>;
@@ -19,6 +19,17 @@ const TakeQuiz = () => {
 
     const needsFormatting = /<i>|<b>|<sup>|<sub>/.test(questionList[currentQuestionIndex].questionText);
 
+    useEffect(() => {
+        if (answerMatches !== null) {
+            if (answerMatches) {
+                alert("Correct!");
+            } else {
+                alert("Incorrect. Correct answer(s): " + questionList[currentQuestionIndex].answerText);
+            }
+            setAnswerMatches(null);
+        }
+    }, [answerMatches, currentQuestionIndex, questionList]);
+    
     const formatText = (text) => {
         const parts = text.split(/(<i>.*?<\/i>|<b>.*?<\/b>|<sup>.*?<\/sup>|<sub>.*?<\/sub>)/g);
         return parts.map((part, index) => {
@@ -36,28 +47,52 @@ const TakeQuiz = () => {
     };
 
     const getNextQuestion = () => {
-        if (currentQuestionIndex < questionList.length - 1) {
-            setCurrentQuestionIndex(currentQuestionIndex + 1);
+        console.log("Index: " + currentQuestionIndex);
+        console.log("questionList.length-1: " + (questionList.length - 1));
+        console.log("Index = questionList.length-1: " +
+            currentQuestionIndex === (questionList.length - 1)
+        );
+        if (currentQuestionIndex === questionList.length - 1) {
+            console.log("Quiz finished! Your score: " + score);
             setUserResponse("");
-        } else {
-            alert("Quiz finished!");
+            setScore(0);
+            //navigate away
+        } else if (currentQuestionIndex < questionList.length - 1) {
+            setCurrentQuestionIndex(prevIndex => {
+                return prevIndex + 1;
+            });
+            setUserResponse("");
         }
     }
 
     const submitAnswer = () => {
-
+        let currentAnswers = questionList[currentQuestionIndex].answerText;
+        const isMatch = currentAnswers.some(item => item === userResponse.toUpperCase());
+        if (isMatch) {
+            setScore(prevScore =>{
+                const newScore = prevScore + 1;
+                console.log("Score updated in submitAnswer: " + newScore);
+                return newScore;
+            });
+            setAnswerMatches(true);
+        } else {
+            setAnswerMatches(false);
+        }
+        getNextQuestion(currentQuestionIndex);
     }
 
     return (
-        <div className=".App">
+        <div className="App">
             <Header />
             <p>### Stubbed TakeQuiz. <a href="http://localhost:3000/">Go back.</a> ###</p>
-            <p>
-                {needsFormatting ? 
-                    formatText(questionList[currentQuestionIndex].questionText) :
-                    questionList[currentQuestionIndex].questionText
-                }
-            </p>
+            <div className = "QuestionCard">
+                <p>
+                    {needsFormatting ? 
+                        formatText(questionList[currentQuestionIndex].questionText) :
+                        questionList[currentQuestionIndex].questionText
+                    }
+                </p>
+            </div>
             <input type="text" value={userResponse} onChange={(e) => setUserResponse(e.target.value)} />
             <button onClick={submitAnswer}>Submit Answer</button>
             <Footer />
