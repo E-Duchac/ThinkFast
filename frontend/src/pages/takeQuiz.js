@@ -10,6 +10,7 @@ const TakeQuiz = () => {
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [userResponse, setUserResponse] = useState("");
     const [answerMatches, setAnswerMatches] = useState(null);
+    const [quizComplete, setQuizComplete] = useState(false);
     const [score, setScore] = useState(0);
 
     const Italic = ({children}) => <i>{children}</i>;
@@ -29,6 +30,15 @@ const TakeQuiz = () => {
             setAnswerMatches(null);
         }
     }, [answerMatches, currentQuestionIndex, questionList]);
+
+    useEffect(() => {
+        console.log("useEffect quizComplete, score: " + score);
+        if (quizComplete) {
+            console.log("useEffect quizComplete, score2: " + score);
+            alert("Quiz complete! Your score: " + score);
+            //setScore(0);
+        }
+    }, [quizComplete, score]);
     
     const formatText = (text) => {
         const parts = text.split(/(<i>.*?<\/i>|<b>.*?<\/b>|<sup>.*?<\/sup>|<sub>.*?<\/sub>)/g);
@@ -47,15 +57,9 @@ const TakeQuiz = () => {
     };
 
     const getNextQuestion = () => {
-        console.log("Index: " + currentQuestionIndex);
-        console.log("questionList.length-1: " + (questionList.length - 1));
-        console.log("Index = questionList.length-1: " +
-            currentQuestionIndex === (questionList.length - 1)
-        );
         if (currentQuestionIndex === questionList.length - 1) {
-            console.log("Quiz finished! Your score: " + score);
+            setQuizComplete(true);
             setUserResponse("");
-            setScore(0);
             //navigate away
         } else if (currentQuestionIndex < questionList.length - 1) {
             setCurrentQuestionIndex(prevIndex => {
@@ -78,7 +82,7 @@ const TakeQuiz = () => {
         } else {
             setAnswerMatches(false);
         }
-        getNextQuestion(currentQuestionIndex);
+        getNextQuestion();
     }
 
     return (
