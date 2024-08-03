@@ -9,6 +9,7 @@ const TakeQuiz = () => {
     const questionList = location.state?.questionList;
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [userResponse, setUserResponse] = useState("");
+    const [feedbackMessage, setFeedbackMessage] = useState("");
     const [answerMatches, setAnswerMatches] = useState(null);
     const [quizComplete, setQuizComplete] = useState(false);
     const [score, setScore] = useState(0);
@@ -23,18 +24,17 @@ const TakeQuiz = () => {
     useEffect(() => {
         if (answerMatches !== null) {
             if (answerMatches) {
-                alert("Correct!");
+                console.log("Correct!");
             } else {
-                alert("Incorrect. Correct answer(s): " + questionList[currentQuestionIndex].answerText);
+                console.log("Incorrect. Correct answer(s): " + questionList[currentQuestionIndex].answerText);
             }
             setAnswerMatches(null);
+            //getNextQuestion();
         }
     }, [answerMatches, currentQuestionIndex, questionList]);
 
     useEffect(() => {
-        console.log("useEffect quizComplete, score: " + score);
         if (quizComplete) {
-            console.log("useEffect quizComplete, score2: " + score);
             alert("Quiz complete! Your score: " + score);
             //setScore(0);
         }
@@ -57,6 +57,7 @@ const TakeQuiz = () => {
     };
 
     const getNextQuestion = () => {
+        setFeedbackMessage("");
         if (currentQuestionIndex === questionList.length - 1) {
             setQuizComplete(true);
             setUserResponse("");
@@ -69,36 +70,54 @@ const TakeQuiz = () => {
         }
     }
 
-    const submitAnswer = () => {
+    const submitAnswer = (event) => {
+        event.preventDefault();
         let currentAnswers = questionList[currentQuestionIndex].answerText;
         const isMatch = currentAnswers.some(item => item === userResponse.toUpperCase());
         if (isMatch) {
             setScore(prevScore =>{
                 const newScore = prevScore + 1;
-                console.log("Score updated in submitAnswer: " + newScore);
+                //console.log("Score updated in submitAnswer: " + newScore);
                 return newScore;
             });
+            setFeedbackMessage("Correct!");
             setAnswerMatches(true);
         } else {
+            setFeedbackMessage("Incorrect. Correct answer(s): " + currentAnswers);
             setAnswerMatches(false);
         }
-        getNextQuestion();
     }
 
     return (
         <div className="App">
             <Header />
-            <p>### Stubbed TakeQuiz. <a href="http://localhost:3000/">Go back.</a> ###</p>
-            <div className = "QuestionCard">
-                <p>
-                    {needsFormatting ? 
-                        formatText(questionList[currentQuestionIndex].questionText) :
-                        questionList[currentQuestionIndex].questionText
-                    }
-                </p>
+            <div className = "quiz-container">
+                {/* <p>### Stubbed TakeQuiz. <a href="http://localhost:3000/">Go back.</a> ###</p> */}
+                <form className = "question-card" onSubmit={submitAnswer}>
+                    <p>
+                        {currentQuestionIndex + 1}.&ensp;
+                        {needsFormatting ? 
+                            formatText(questionList[currentQuestionIndex].questionText) :
+                            questionList[currentQuestionIndex].questionText
+                        }
+                    </p>
+                    <input type="text" value={userResponse} onChange={(e) => setUserResponse(e.target.value)} />
+                    {/* Feedback message */}
+                    <div className = "feedback-message">
+                        {feedbackMessage && 
+                            <div>
+                                <button onClick={getNextQuestion}>Next Question</button>
+                                <p>{feedbackMessage}</p>
+                            </div>
+                        }
+                        {!feedbackMessage && 
+                            <div>
+                                <button type="submit">Submit Answer</button>
+                            </div>
+                        }
+                    </div>
+                </form>
             </div>
-            <input type="text" value={userResponse} onChange={(e) => setUserResponse(e.target.value)} />
-            <button onClick={submitAnswer}>Submit Answer</button>
             <Footer />
         </div>
     );
