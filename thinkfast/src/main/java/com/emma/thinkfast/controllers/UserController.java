@@ -1,6 +1,10 @@
 package com.emma.thinkfast.controllers;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -8,48 +12,40 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.emma.thinkfast.models.User;
 import com.emma.thinkfast.repositories.UserRepository;
+import com.emma.thinkfast.services.UserServiceImpl;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
 @RequestMapping("/user")
 @CrossOrigin(origins = "*") //Remember to reconfigure!
 public class UserController {
-    // private UserRepository userRepo;
+    private final UserRepository userRepo;
+    private final UserServiceImpl userService;
+    private static final Logger logger = Logger.getLogger(UserController.class.getName());
 
-    // @Autowired
-    // public UserController(UserRepository userRepo) {
-    //     this.userRepo = userRepo;
-    // }
+    @Autowired
+    public UserController(UserRepository userRepo, UserServiceImpl userService) {
+        this.userRepo = userRepo;
+        this.userService = userService;
+    }
 
-    // //Create
-    // @PostMapping("/createUser")
-    // public ResponseEntity<String> createUser() {
-    //     return ResponseEntity.ok("stubbed createUser");
-    // }
-
-    // //Read
-    // @GetMapping("/getAllUsers")
-    // public ResponseEntity<String> getAllUsers() {
-    //     return ResponseEntity.ok("stubbed getAllUsers");
-    // }
-
-    // @GetMapping("/getUser/{id}")
-    // public ResponseEntity<String> getUser(@PathVariable String userId) {
-    //     return ResponseEntity.ok("stubbed getUser");
-    // }
-
-    // //Update
-    // @PutMapping("/updateUser/{id}")
-    // public ResponseEntity<String> updateUser(@PathVariable String userId) {
-    //     return ResponseEntity.ok("stubbed updateUser");
-    // }
-
-    // //Delete
-    // @DeleteMapping("/deleteUser/{id}")
-    // public ResponseEntity<String> deleteUser(@PathVariable String userId) {
-    //     return ResponseEntity.ok("stubbed deleteUser");
-    // }
+    @PostMapping("/registerUser")
+    public ResponseEntity<String> registerUser(@RequestBody User user) {
+        try {
+            User savedUser = userRepo.save(user);
+            logger.log(Level.INFO, "New user registered: {}", user);
+            ObjectMapper obMap = new ObjectMapper();
+            return ResponseEntity.ok(obMap.writeValueAsString(savedUser));
+        } catch (Exception e) {
+            logger.log(Level.WARNING, "Registry failed; exception encountered: {}", e.getStackTrace());
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
+                .body("Registry failed; exception encountered: " + e.getStackTrace());
+        }
+    }
 }

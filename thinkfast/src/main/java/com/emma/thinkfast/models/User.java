@@ -5,17 +5,23 @@ import java.util.List;
 import org.springframework.data.annotation.Id;
 
 import com.emma.thinkfast.enums.Category;
+import com.emma.thinkfast.enums.Role;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class User {
     @Id
+    @JsonProperty("id")
     private String _id;
     private String firstName;
     private String lastName;
-    private String email;
-    private List<Category> faveCategories;
 
+    private String userName;
     private String encPw;
     private String pwSalt;
+    private String email;
+    private Role role;
+
+    private List<Category> faveCategories;
 
     public User() {
         super();
@@ -43,6 +49,14 @@ public class User {
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
+    }
+
+    public String getUsername() {
+        return userName;
+    }
+
+    public void setUsername(String userName) {
+        this.userName = userName;
     }
 
     public String getEmail() {
@@ -77,6 +91,14 @@ public class User {
         this.pwSalt = pwSalt;
     }
 
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -88,6 +110,8 @@ public class User {
         result = prime * result + ((faveCategories == null) ? 0 : faveCategories.hashCode());
         result = prime * result + ((encPw == null) ? 0 : encPw.hashCode());
         result = prime * result + ((pwSalt == null) ? 0 : pwSalt.hashCode());
+        result = prime * result + ((userName == null) ? 0 : userName.hashCode());
+        result = prime * result + ((role == null) ? 0 : role.hashCode());
         return result;
     }
 
@@ -135,12 +159,23 @@ public class User {
                 return false;
         } else if (!pwSalt.equals(other.pwSalt))
             return false;
+        if (userName == null) {
+            if (other.userName != null)
+                return false;
+        } else if (!userName.equals(other.userName))
+            return false;
+        if (role == null) {
+            if (other.role == null)
+                return false;
+        } else if (!role.equals(other.role))
+            return false;
         return true;
     }
 
     @Override
     public String toString() {
         return "User [_id=" + _id + ", firstName=" + firstName + ", lastName=" + lastName + ", email=" + email
-                + ", faveCategories=" + faveCategories + ", encPw=" + encPw + ", pwSalt=" + pwSalt + "]";
+                + ", faveCategories=" + faveCategories + ", encPw=" + encPw + ", pwSalt=" + pwSalt 
+                + ", userName=" + userName + ", role=" + role + "]";
     }
 }
