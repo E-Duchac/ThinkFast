@@ -9,13 +9,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.emma.thinkfast.DTOs.LoginRequest;
 import com.emma.thinkfast.models.User;
 import com.emma.thinkfast.repositories.UserRepository;
 import com.emma.thinkfast.services.UserServiceImpl;
@@ -47,5 +47,24 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
                 .body("Registry failed; exception encountered: " + e.getStackTrace());
         }
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<String> loginUser(@RequestBody LoginRequest requestDTO) {
+        return ResponseEntity.ok("Stubbed loginUser");
+    }
+
+    // @GetMapping("/getUserById")
+    // @GetMapping("/getUserByEmail")
+    // @GetMapping("/getUserByUsername"), etc.
+
+    @PutMapping("/updateUser")
+    public ResponseEntity<String> updateUser(@RequestBody User user) {
+        return ResponseEntity.ok("Stubbed updateUser");
+    }
+
+    @DeleteMapping("/deleteUser")
+    public ResponseEntity<String> deleteUser(@RequestBody String userId) {
+        return ResponseEntity.ok("Stubbed deleteUser");
     }
 }

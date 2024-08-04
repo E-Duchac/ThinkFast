@@ -20,8 +20,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.emma.thinkfast.DTOs.CustomQuizRequest;
+import com.emma.thinkfast.DTOs.RequestDTO;
 import com.emma.thinkfast.models.Question;
-import com.emma.thinkfast.models.RequestDTO;
 import com.emma.thinkfast.repositories.QuestionRepository;
 import com.emma.thinkfast.services.QuestionServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -99,7 +100,7 @@ public class QuestionController {
     }
 
     @PostMapping("/composeCustomQuiz") //Not done yet, still needs error handling
-    public ResponseEntity<List<Question>> getQuestionsByMultiCategory(@RequestBody RequestDTO requestDTO) {
+    public ResponseEntity<List<Question>> getQuestionsByMultiCategory(@RequestBody CustomQuizRequest requestDTO) {
         List<Question> allResponses = new ArrayList<>();
         for (String category : requestDTO.getCategories()) {
             List<Question> bodyResponse = getAllQuestionsByCategory(category).getBody();

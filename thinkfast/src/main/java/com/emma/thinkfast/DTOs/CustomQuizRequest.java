@@ -1,12 +1,6 @@
-package com.emma.thinkfast.models;
+package com.emma.thinkfast.DTOs;
 
-public class RequestDTO {
-    
-    /* Temporary structure built to parse out request bodies for 
-    * the composeCustomQuiz() endpoint in QuestionController.
-    * Likely to become more generic, in order to meet the needs
-    * of parsing different types of request bodies as needed.
-    */
+public class CustomQuizRequest implements RequestDTO {
 
     private String[] categories;
     private int quizLength;
