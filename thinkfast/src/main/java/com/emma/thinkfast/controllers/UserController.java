@@ -38,12 +38,12 @@ public class UserController {
     @PostMapping("/registerUser")
     public ResponseEntity<String> registerUser(@RequestBody User user) {
         try {
-            User savedUser = userRepo.save(user);
-            logger.log(Level.INFO, "New user registered: {}", user);
+            User savedUser = userService.registerNewUser(user);
+            logger.log(Level.INFO, "New user registered: {0}", user);
             ObjectMapper obMap = new ObjectMapper();
             return ResponseEntity.ok(obMap.writeValueAsString(savedUser));
         } catch (Exception e) {
-            logger.log(Level.WARNING, "Registry failed; exception encountered: {}", e.getStackTrace());
+            logger.log(Level.WARNING, "Registry failed; exception encountered: {0}", e.getStackTrace());
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
                 .body("Registry failed; exception encountered: " + e.getStackTrace());
         }
@@ -51,7 +51,12 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<String> loginUser(@RequestBody LoginRequest requestDTO) {
-        return ResponseEntity.ok("Stubbed loginUser");
+        Authentication auth = authenticationManager.authenticate(
+            new UsernamePasswordAuthenticationToken(requestDTO.getUserName(), requestDTO.getPw()));
+        SecurityContextHolder.getContext().setAuthentication(auth);
+        String jwt = tokenProvider.generateToken(auth);
+
+        return ResponseEntity.ok(new JwtResponse(jwt));
     }
 
     // @GetMapping("/getUserById")
