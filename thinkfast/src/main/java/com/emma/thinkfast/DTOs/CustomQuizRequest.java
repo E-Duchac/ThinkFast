@@ -1,4 +1,4 @@
-package com.emma.thinkfast.DTOs;
+package com.emma.thinkfast.dtos;
 
 public class CustomQuizRequest implements RequestDTO {
 

@@ -1,8 +1,8 @@
 package com.emma.thinkfast.enums;
 
 public enum Role {
-    ADMIN,
-    COACH,
-    STUDENT,
-    ADULT
+    ROLE_ADMIN,
+    ROLE_COACH,
+    ROLE_STUDENT,
+    ROLE_ADULT
 }

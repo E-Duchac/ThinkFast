@@ -9,7 +9,9 @@ import com.emma.thinkfast.enums.Category;
 import com.emma.thinkfast.models.Question;
 
 public class QuestionUtils {
-    public static Document QuestionToDocument(Question question) {
+    private QuestionUtils () {}
+    
+    public static Document questionToDocument(Question question) {
         Map<String, Object> map = new HashMap<>();
         map.put("_id", question.get_id());
         map.put("questionText", question.getQuestionText());
@@ -18,7 +20,7 @@ public class QuestionUtils {
         return new Document(map);
     }
 
-    public static Question DocumentToQuestion(Document document) {
+    public static Question documentToQuestion(Document document) {
         Question question = new Question();
         question.set_id(document.getString("_id"));
         question.setQuestionText(document.getString("questionText"));

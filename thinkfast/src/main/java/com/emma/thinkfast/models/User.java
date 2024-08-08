@@ -1,23 +1,27 @@
 package com.emma.thinkfast.models;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import com.emma.thinkfast.enums.Category;
 import com.emma.thinkfast.enums.Role;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class User {
+public class User implements UserDetails {
     @Id
     @JsonProperty("id")
     private String _id;
     private String firstName;
     private String lastName;
 
-    private String userName;
-    private String encPw;
-    private String pwSalt;
+    private String username;
+    private String password;
     private String email;
     private Role role;
 
@@ -52,11 +56,11 @@ public class User {
     }
 
     public String getUsername() {
-        return userName;
+        return username;
     }
 
-    public void setUsername(String userName) {
-        this.userName = userName;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getEmail() {
@@ -75,20 +79,12 @@ public class User {
         this.faveCategories = faveCategories;
     }
 
-    public String getEncPw() {
-        return encPw;
+    public String getPassword() {
+        return password;
     }
 
-    public void setEncPw(String encPw) {
-        this.encPw = encPw;
-    }
-
-    public String getPwSalt() {
-        return pwSalt;
-    }
-
-    public void setPwSalt(String pwSalt) {
-        this.pwSalt = pwSalt;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public Role getRole() {
@@ -108,9 +104,8 @@ public class User {
         result = prime * result + ((lastName == null) ? 0 : lastName.hashCode());
         result = prime * result + ((email == null) ? 0 : email.hashCode());
         result = prime * result + ((faveCategories == null) ? 0 : faveCategories.hashCode());
-        result = prime * result + ((encPw == null) ? 0 : encPw.hashCode());
-        result = prime * result + ((pwSalt == null) ? 0 : pwSalt.hashCode());
-        result = prime * result + ((userName == null) ? 0 : userName.hashCode());
+        result = prime * result + ((password == null) ? 0 : password.hashCode());
+        result = prime * result + ((username == null) ? 0 : username.hashCode());
         result = prime * result + ((role == null) ? 0 : role.hashCode());
         return result;
     }
@@ -149,20 +144,15 @@ public class User {
                 return false;
         } else if (!faveCategories.equals(other.faveCategories))
             return false;
-        if (encPw == null) {
-            if (other.encPw != null)
+        if (password == null) {
+            if (other.password != null)
                 return false;
-        } else if (!encPw.equals(other.encPw))
+        } else if (!password.equals(other.password))
             return false;
-        if (pwSalt == null) {
-            if (other.pwSalt != null)
+        if (username == null) {
+            if (other.username != null)
                 return false;
-        } else if (!pwSalt.equals(other.pwSalt))
-            return false;
-        if (userName == null) {
-            if (other.userName != null)
-                return false;
-        } else if (!userName.equals(other.userName))
+        } else if (!username.equals(other.username))
             return false;
         if (role == null) {
             if (other.role == null)
@@ -174,8 +164,37 @@ public class User {
 
     @Override
     public String toString() {
-        return "User [_id=" + _id + ", firstName=" + firstName + ", lastName=" + lastName + ", email=" + email
-                + ", faveCategories=" + faveCategories + ", encPw=" + encPw + ", pwSalt=" + pwSalt 
-                + ", userName=" + userName + ", role=" + role + "]";
+        return "User [_id=" + _id + ", firstName=" + firstName + ", lastName=" + lastName 
+        + ", email=" + email + ", faveCategories=" + faveCategories + ", password=" + password 
+        + ", userName=" + username + ", role=" + role + "]";
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return Collections.singleton(new SimpleGrantedAuthority(role.name()));
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        //Implement method for real
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        //Implement method for real
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        //Implement method for real
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        //Implement method for real
+        return true;
     }
 }

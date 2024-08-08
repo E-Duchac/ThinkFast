@@ -23,35 +23,35 @@ public class UserRepository {
     }
 
     public User save(User user) {
-        Document userDoc = UserUtils.UserToDocument(user);
+        Document userDoc = UserUtils.userToDocument(user);
         collection.insertOne(userDoc);
         return user;
     }
 
     public Optional<User> findById(String userId) {
         Document document = collection.find(new Document("_id", userId)).first();
-        return Optional.of(UserUtils.DocumentToUser(document));
+        return Optional.of(UserUtils.documentToUser(document));
     }
 
     public Optional<User> findByEmail(String email) {
         Document document = collection.find(new Document("email", email)).first();
-        return Optional.of(UserUtils.DocumentToUser(document));
+        return Optional.of(UserUtils.documentToUser(document));
     }
 
-    public Optional<User> findByUsername(String userName) {
-        Document document = collection.find(new Document("userName", userName)).first();
-        return Optional.of(UserUtils.DocumentToUser(document));
+    public Optional<User> findByUsername(String username) {
+        Document document = collection.find(new Document("username", username)).first();
+        return Optional.of(UserUtils.documentToUser(document));
     }
 
     public Optional<User> updateById(User user) {
         Document document = collection.findOneAndReplace(
             collection.find(new Document("_id", user.get_id())).first(),
-            UserUtils.UserToDocument(user));
-        return Optional.of(UserUtils.DocumentToUser(document));
+            UserUtils.userToDocument(user));
+        return Optional.of(UserUtils.documentToUser(document));
     }
 
     public Optional<User> deleteById(String userId) {
         Document document = collection.findOneAndDelete(new Document("_id", userId));
-        return Optional.of(UserUtils.DocumentToUser(document));
+        return Optional.of(UserUtils.documentToUser(document));
     }
 }
