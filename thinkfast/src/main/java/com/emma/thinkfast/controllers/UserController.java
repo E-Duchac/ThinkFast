@@ -1,5 +1,6 @@
 package com.emma.thinkfast.controllers;
 
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -81,11 +82,26 @@ public class UserController {
 
     @PutMapping("/updateUser")
     public ResponseEntity<String> updateUser(@RequestBody User user) {
-        return ResponseEntity.ok("Stubbed updateUser");
+        try {
+            userRepo.updateById(user);
+            logger.log(Level.INFO, "User {0} updated: {1}", new Object[]{user.getUsername(), user});
+            return ResponseEntity.ok("User updated: " + user);
+        } catch (Exception e) {
+            logger.log(Level.WARNING, "User {0} unable to be updated: {1}", new Object[]{user.getUsername(), e.getStackTrace()});
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
+                .body("User " + user.getUsername() + " failed to update.");
+        }
     }
 
     @DeleteMapping("/deleteUser")
     public ResponseEntity<String> deleteUser(@RequestBody String userId) {
-        return ResponseEntity.ok("Stubbed deleteUser");
+        try {
+            userRepo.deleteById(userId);
+            return ResponseEntity.ok("User with id " + userId + " deleted.");
+        } catch (Exception e) {
+            logger.log(Level.WARNING, "User with id {0} unable to be deleted: {1}", new Object[]{userId, e.getStackTrace()});
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
+                .body("User with id " + userId + " failed to be deleted.");
+        }
     }
 }

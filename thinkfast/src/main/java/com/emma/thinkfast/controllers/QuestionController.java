@@ -92,7 +92,7 @@ public class QuestionController {
             //return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Fetch failed; question not found with category " + category);
             return new ResponseEntity<>(questionList, HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Fetch failed; unexpected exception occured: {}", Arrays.toString(e.getStackTrace()));
+            logger.log(Level.SEVERE, "Fetch failed; unexpected exception occured: {0}", Arrays.toString(e.getStackTrace()));
             //return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("Unexpected exception occured. Please try again or reach out to notify us of issue.");
             return new ResponseEntity<>(questionList, HttpStatus.EXPECTATION_FAILED);
         }

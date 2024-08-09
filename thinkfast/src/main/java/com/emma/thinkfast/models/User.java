@@ -3,6 +3,10 @@ package com.emma.thinkfast.models;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
+
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.security.core.GrantedAuthority;
@@ -29,6 +33,7 @@ public class User implements UserDetails {
 
     public User() {
         super();
+        this._id = UUID.randomUUID().toString();
     }
 
     public String get_id() {

@@ -4,8 +4,6 @@ import java.util.List;
 
 import org.springframework.data.annotation.Id;
 
-import com.emma.thinkfast.enums.Category;
-
 public class Quiz {
     @Id
     private String _id;
