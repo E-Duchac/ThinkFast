@@ -5,9 +5,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-
 import org.springframework.data.annotation.Id;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

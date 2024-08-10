@@ -83,18 +83,14 @@ public class QuestionController {
             questionList = questionRepo.findByCategory(category);
             logger.log(Level.INFO, "{0} {1} question(s) found: {2}", 
                 new Object[]{questionList.size(), category, Arrays.toString(questionList.toArray())});
-            //return ResponseEntity.ok(Arrays.toString(questionList.toArray()));
-            //return new ResponseEntity<>(questionList, headers, HttpStatus.OK);
             return ResponseEntity.ok(questionList);
         } catch (NullPointerException npe) {
             logger.log(Level.WARNING, "Fetch failed; questions with category {0} not found: {1}",
                 new Object[]{category, Arrays.toString(npe.getStackTrace())});
-            //return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Fetch failed; question not found with category " + category);
-            return new ResponseEntity<>(questionList, HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(questionList);
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Fetch failed; unexpected exception occured: {0}", Arrays.toString(e.getStackTrace()));
-            //return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("Unexpected exception occured. Please try again or reach out to notify us of issue.");
-            return new ResponseEntity<>(questionList, HttpStatus.EXPECTATION_FAILED);
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(questionList);
         }
     }
 
