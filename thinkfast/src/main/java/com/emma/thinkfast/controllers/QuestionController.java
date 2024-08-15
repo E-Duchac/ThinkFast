@@ -34,6 +34,7 @@ public class QuestionController {
     private final QuestionServiceImpl questionService;
     private static final Logger logger = Logger.getLogger(QuestionController.class.getName());
 
+    //Remember to remove the questionRepo stuff ^ v after refactoring
     @Autowired
     public QuestionController(QuestionRepository questionRepo, QuestionServiceImpl questionService) {
         this.questionRepo = questionRepo;
@@ -56,8 +57,7 @@ public class QuestionController {
                 .body("Save failed; exception encountered: " + e.getStackTrace());
         }
     }
-    //
-    //
+    
     @GetMapping("/getQuestionById/{questionId}")
     public ResponseEntity<String> getQuestionById(@PathVariable String questionId) {
         try {
