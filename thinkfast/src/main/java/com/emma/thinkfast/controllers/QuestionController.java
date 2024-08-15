@@ -3,6 +3,7 @@ package com.emma.thinkfast.controllers;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -30,14 +31,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @RequestMapping("/question")
 @CrossOrigin(origins = "*") //Remember to reconfigure!
 public class QuestionController {
-    private final QuestionRepository questionRepo;
     private final QuestionServiceImpl questionService;
     private static final Logger logger = Logger.getLogger(QuestionController.class.getName());
 
-    //Remember to remove the questionRepo stuff ^ v after refactoring
     @Autowired
-    public QuestionController(QuestionRepository questionRepo, QuestionServiceImpl questionService) {
-        this.questionRepo = questionRepo;
+    public QuestionController(QuestionServiceImpl questionService) {
         this.questionService = questionService;
     }
 
@@ -47,8 +45,8 @@ public class QuestionController {
     @PostMapping("/createQuestion")
     public ResponseEntity<String> saveQuestion(@RequestBody Question question) {
         try {
-            Question savedQuestion = questionRepo.save(question);
-            logger.log(Level.INFO, "Question saved: {}", question);
+            Question savedQuestion = questionService.saveQuestion(question);
+            logger.log(Level.INFO, "Question saved: {}", savedQuestion);
             ObjectMapper obMap = new ObjectMapper();
             return ResponseEntity.ok(obMap.writeValueAsString(savedQuestion));
         } catch (Exception e) {
@@ -61,15 +59,11 @@ public class QuestionController {
     @GetMapping("/getQuestionById/{questionId}")
     public ResponseEntity<String> getQuestionById(@PathVariable String questionId) {
         try {
-            Optional<Question> optQuestion = questionRepo.findById(questionId);
-            Question question = optQuestion.get();
-            logger.log(Level.INFO, "Question found: {}", question);
-            return ResponseEntity.ok (question.toString());
-        } catch (NullPointerException npe) {
-            logger.log(Level.WARNING, "Fetch failed; question with id {0} not found: {1}", 
-                new Object[]{questionId, Arrays.toString(npe.getStackTrace())});
+            Question question = questionService.getQuestionById(questionId);
+            return ResponseEntity.ok(question.toString());
+        } catch (NoSuchElementException nsee) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body("Fetch failed; question not found with id " + questionId);
+                .body("Question with id " + questionId + " not found.");
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Fetch failed; unexpected exception occured: {}", Arrays.toString(e.getStackTrace()));
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
@@ -81,14 +75,10 @@ public class QuestionController {
     public ResponseEntity<List<Question>> getAllQuestionsByCategory(@PathVariable String category) {
         List<Question> questionList = new ArrayList<>();
         try {
-            questionList = questionRepo.findByCategory(category);
+            questionList = questionService.getQuestionsByCategory(category);
             logger.log(Level.INFO, "{0} {1} question(s) found: {2}", 
                 new Object[]{questionList.size(), category, Arrays.toString(questionList.toArray())});
             return ResponseEntity.ok(questionList);
-        } catch (NullPointerException npe) {
-            logger.log(Level.WARNING, "Fetch failed; questions with category {0} not found: {1}",
-                new Object[]{category, Arrays.toString(npe.getStackTrace())});
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(questionList);
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Fetch failed; unexpected exception occured: {0}", Arrays.toString(e.getStackTrace()));
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(questionList);
@@ -98,30 +88,35 @@ public class QuestionController {
     @PostMapping("/composeCustomQuiz") //Not done yet, still needs error handling
     public ResponseEntity<List<Question>> getQuestionsByMultiCategory(@RequestBody CustomQuizRequest requestDTO) {
         List<Question> allResponses = new ArrayList<>();
-        for (String category : requestDTO.getCategories()) {
-            List<Question> bodyResponse = getAllQuestionsByCategory(category).getBody();
-            if (bodyResponse != null && !bodyResponse.isEmpty()) {
-                allResponses.addAll(bodyResponse);
+        try {
+            for (String category : requestDTO.getCategories()) {
+                List<Question> categoryList = questionService.getQuestionsByCategory(category);
+                if (categoryList != null && !categoryList.isEmpty()) {
+                    allResponses.addAll(categoryList);
+                }
             }
+            logger.log(Level.INFO, "Categories: {0}", requestDTO.getCategories());
+            logger.log(Level.INFO, "Quiz length: {0}", requestDTO.getQuizLength());
+            List<Question> scrambleTrimmedList = questionService.scrambleTrim(allResponses, requestDTO.getQuizLength());
+            logger.log(Level.INFO, "Response body contents: {0}", scrambleTrimmedList);
+            return ResponseEntity.ok(scrambleTrimmedList);
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Composition failed; unexpected exception occured: {0}", Arrays.toString(e.getStackTrace()));
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(allResponses);
         }
-        logger.log(Level.INFO, "Categories: {0}", requestDTO.getCategories());
-        logger.log(Level.INFO, "Quiz length: {0}", requestDTO.getQuizLength());
-        List<Question> scrambleTrimmedList = questionService.scrambleTrim(allResponses, requestDTO.getQuizLength());
-        logger.log(Level.INFO, "Response body contents: {0}", scrambleTrimmedList);
-        return ResponseEntity.ok(scrambleTrimmedList);
     }
 
     @PutMapping("/updateQuestion/{questionId}")
     public ResponseEntity<String> updateQuestion(@PathVariable String questionId, @RequestBody Question newQuestionDoc) {
         try {
             newQuestionDoc.set_id(questionId);
-            Optional<Question> question = questionRepo.updateById(newQuestionDoc);
+            Question updateQuestion = questionService.updateQuestion(newQuestionDoc);
             logger.log(Level.INFO, "Question with id {0} updated to: {1}",
                 new Object[]{questionId, newQuestionDoc});
-            return ResponseEntity.ok("Question with id " + questionId + " updated to: " + question.get());
-        } catch (NullPointerException npe) {
+            return ResponseEntity.ok("Question with id " + questionId + " updated to: " + updateQuestion);
+        } catch (NoSuchElementException nsee) {
             logger.log(Level.WARNING, "Update failed; question with id {0} not found: {1}", 
-                new Object[]{questionId, Arrays.toString(npe.getStackTrace())});
+                new Object[]{questionId, Arrays.toString(nsee.getStackTrace())});
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body("Update failed; question not found with id " + questionId);
         } catch (Exception e) {
@@ -134,13 +129,13 @@ public class QuestionController {
     @DeleteMapping("/deleteQuestion/{questionId}")
     public ResponseEntity<String> deleteQuestion(@PathVariable String questionId) {
         try {
-            Optional<Question> question = questionRepo.deleteById(questionId);
+            Question deleteQuestion = questionService.deleteQuestion(questionId);
             logger.log(Level.INFO, "Question with id {0} deleted: {1}", 
-                new Object[]{questionId, question.get()});
-            return ResponseEntity.ok(question.get().toString());
-        } catch (NullPointerException npe) {
+                new Object[]{questionId, deleteQuestion});
+            return ResponseEntity.ok(deleteQuestion.toString());
+        } catch (NoSuchElementException nsee) {
             logger.log(Level.WARNING, "Deletion failed; question with id {0} not found: {1}", 
-                new Object[]{questionId, Arrays.toString(npe.getStackTrace())});
+                new Object[]{questionId, Arrays.toString(nsee.getStackTrace())});
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body("Deletion failed; question not found with id " + questionId);
         } catch (Exception e) {
