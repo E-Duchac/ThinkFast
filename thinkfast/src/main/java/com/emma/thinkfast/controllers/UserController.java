@@ -1,8 +1,9 @@
 package com.emma.thinkfast.controllers;
 
-import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.naming.AuthenticationException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -10,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,24 +20,22 @@ import org.springframework.web.bind.annotation.RestController;
 import com.emma.thinkfast.dtos.JwtResponse;
 import com.emma.thinkfast.dtos.LoginRequest;
 import com.emma.thinkfast.models.User;
-import com.emma.thinkfast.repositories.UserRepository;
 import com.emma.thinkfast.services.AuthServiceImpl;
 import com.emma.thinkfast.services.UserServiceImpl;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
 @RequestMapping("/user")
 @CrossOrigin(origins = "*") //Remember to reconfigure!
 public class UserController {
-    private final UserRepository userRepo;
     private final UserServiceImpl userService;
     private final AuthServiceImpl authService;
     private final PasswordEncoder passwordEncoder;
     private static final Logger logger = Logger.getLogger(UserController.class.getName());
 
     @Autowired
-    public UserController(UserRepository userRepo, UserServiceImpl userService, AuthServiceImpl authService, PasswordEncoder passwordEncoder) {
-        this.userRepo = userRepo;
+    public UserController(UserServiceImpl userService, AuthServiceImpl authService, PasswordEncoder passwordEncoder) {
         this.userService = userService;
         this.authService = authService;
         this.passwordEncoder = passwordEncoder;
@@ -50,58 +48,37 @@ public class UserController {
             logger.log(Level.INFO, "New user registered: {0}", user);
             ObjectMapper obMap = new ObjectMapper();
             return ResponseEntity.ok(obMap.writeValueAsString(savedUser));
-        } catch (Exception e) {
-            logger.log(Level.WARNING, "Registry failed; exception encountered: {0}", e.getStackTrace());
-            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
-                .body("Registry failed; exception encountered: " + e.getStackTrace());
+        } catch (JsonProcessingException jpe) {
+            logger.log(Level.SEVERE, "Registry successful, but User not returnable: {0}", jpe.getStackTrace());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body("Registry successful, but User not returnable: " + jpe.getStackTrace());
         }
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> loginUser(@RequestBody LoginRequest requestDTO) {
+    public ResponseEntity<String> loginUser(@RequestBody LoginRequest requestDTO) {
+        String enteredPassword = requestDTO.getPassword();
+        String userPassword = userService.loadUserByUsername(requestDTO.getUsername()).getPassword();
+        String token;
         try {
-            String enteredPassword = requestDTO.getPassword();
-            String userPassword = userService.loadUserByUsername(requestDTO.getUsername()).getPassword();
-            if (passwordEncoder.matches(enteredPassword, userPassword)) {
-                String token = authService.authenticateUser(requestDTO.getUsername(), requestDTO.getPassword());
-                logger.log(Level.INFO, "User {0} logged in", requestDTO.getUsername());
-                return ResponseEntity.ok(new JwtResponse(token));
-            } else {
-                logger.log(Level.INFO, "User {0} used incorrect password", requestDTO.getUsername());
-                return ResponseEntity.status(401).body("Invalid password.");
-            }
-        } catch (Exception e) {
-            logger.log(Level.WARNING, "User {0} failed to log in", e.getStackTrace());
-            return ResponseEntity.status(401).body("Invalid username or password");
+            token = authService.authenticateUser(requestDTO.getUsername(), enteredPassword, userPassword);
+            logger.log(Level.INFO, "User {0} logged in", requestDTO.getUsername());
+            return ResponseEntity.ok(new JwtResponse(token).toString());
+        } catch (AuthenticationException ae) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
         }
     }
 
-    // @GetMapping("/getUserById")
-    // @GetMapping("/getUserByEmail")
-    // @GetMapping("/getUserByUsername"), etc.
-
     @PutMapping("/updateUser")
     public ResponseEntity<String> updateUser(@RequestBody User user) {
-        try {
-            userRepo.updateById(user);
-            logger.log(Level.INFO, "User {0} updated: {1}", new Object[]{user.getUsername(), user});
-            return ResponseEntity.ok("User updated: " + user);
-        } catch (Exception e) {
-            logger.log(Level.WARNING, "User {0} unable to be updated: {1}", new Object[]{user.getUsername(), e.getStackTrace()});
-            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
-                .body("User " + user.getUsername() + " failed to update.");
-        }
+        userService.updateUser(user);
+        logger.log(Level.INFO, "User {0} updated: {1}", new Object[]{user.getUsername(), user});
+        return ResponseEntity.ok("User updated: " + user);
     }
 
     @DeleteMapping("/deleteUser")
     public ResponseEntity<String> deleteUser(@RequestBody String userId) {
-        try {
-            userRepo.deleteById(userId);
-            return ResponseEntity.ok("User with id " + userId + " deleted.");
-        } catch (Exception e) {
-            logger.log(Level.WARNING, "User with id {0} unable to be deleted: {1}", new Object[]{userId, e.getStackTrace()});
-            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
-                .body("User with id " + userId + " failed to be deleted.");
-        }
+        User deleteUser = userService.deleteUser(userId);
+        return ResponseEntity.ok("User with id " + deleteUser.get_id() + " deleted.");
     }
 }
