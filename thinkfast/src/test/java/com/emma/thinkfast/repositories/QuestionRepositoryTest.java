@@ -2,38 +2,50 @@ package com.emma.thinkfast.repositories;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.bson.Document;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
-import org.springframework.data.mongodb.core.MongoTemplate;
 
 import com.emma.thinkfast.enums.Category;
 import com.emma.thinkfast.models.Question;
+import com.emma.thinkfast.utils.QuestionUtils;
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.result.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @DataMongoTest
-public class QuestionRepositoryTest {
-    @Autowired
+class QuestionRepositoryTest {
+    @Mock
     private MongoClient mongoClient;
+    @Mock
+    private MongoDatabase mongoDatabase;
+    @Mock
     private MongoCollection<Document> collection;
+
     private QuestionRepository questionRepo;
-
+    private FindIterable<Document> findIterable;
+    private MongoCursor<Document> cursor;
     private Question question;
+    private Document questionDoc;
 
+    @SuppressWarnings("unchecked")
     @BeforeEach
     void setUp() {
-        //This is wrong! Need to properly mock the database.
-        MongoDatabase database = mongoClient.getDatabase("test"); //test db
-        collection = database.getCollection("questions");
+        MockitoAnnotations.openMocks(this);
+        when(mongoClient.getDatabase(anyString())).thenReturn(mongoDatabase);
+        when(mongoDatabase.getCollection(anyString())).thenReturn(collection);
         questionRepo = new QuestionRepository(mongoClient);
 
         question = new Question();
@@ -43,6 +55,11 @@ public class QuestionRepositoryTest {
         answerList.add("Cubism");
         question.setAnswerText(answerList);
         question.setCategory(Enum.valueOf(Category.class, "ARTS_HUMANITIES"));
+
+        questionDoc = QuestionUtils.questionToDocument(question);
+
+        findIterable = mock(FindIterable.class);
+        when(collection.insertOne(any(Document.class))).thenReturn(mock(InsertOneResult.class));
     }
 
     @AfterEach
@@ -53,7 +70,7 @@ public class QuestionRepositoryTest {
     @Test
     void testSave() {
         Question foundQuestion = questionRepo.save(question);
-
+        
         assertThat(foundQuestion).isNotNull();
         assertThat(foundQuestion.get_id()).isEqualTo(question.get_id());
         assertThat(foundQuestion.getQuestionText()).isEqualTo(question.getQuestionText());
@@ -62,7 +79,10 @@ public class QuestionRepositoryTest {
     }
 
     @Test
-    public void testFindById() {
+    void testFindById() {
+        when(collection.find(any(Document.class))).thenReturn(findIterable);
+        when(findIterable.first()).thenReturn(questionDoc);
+
         questionRepo.save(question);
         Question foundQuestion = questionRepo.findById(question.get_id()).get();
 
@@ -73,18 +93,51 @@ public class QuestionRepositoryTest {
         assertThat(foundQuestion.getCategory()).isEqualTo(question.getCategory());
     }
 
+    @SuppressWarnings("unchecked")
     @Test
-    public void testFindByCategory() {
-        
+    void testFindByCategory() {
+        cursor = mock(MongoCursor.class);
+        when(collection.find(any(Document.class))).thenReturn(findIterable);
+        when(findIterable.iterator()).thenReturn(cursor);
+        when(cursor.hasNext()).thenReturn(true, false);
+        when(cursor.next()).thenReturn(questionDoc);
+
+        questionRepo.save(question);
+        List<Question> foundQuestionList = questionRepo.findByCategory("ARTS_HUMANITIES");
+
+        assertThat(foundQuestionList).isNotNull().isNotEmpty();
+        assertThat(foundQuestionList.get(0)).isEqualTo(question);
     }
 
     @Test
-    public void testUpdateById() {
+    void testUpdateById() {
+        when(collection.find(any(Document.class))).thenReturn(findIterable);
+        when(findIterable.first()).thenReturn(questionDoc);
+        questionRepo.save(question);
 
+        question.setQuestionText("What is the name of Pablo Picasso?");
+        when(collection.findOneAndReplace(any(Document.class), any(Document.class)))
+            .thenReturn(QuestionUtils.questionToDocument(question));
+        Question updatedQuestion = questionRepo.updateById(question).get();
+
+        assertThat(updatedQuestion).isNotNull();
+        assertThat(updatedQuestion.get_id()).isEqualTo(question.get_id());
+        assertThat(updatedQuestion.getQuestionText()).isEqualTo("What is the name of Pablo Picasso?");
+        assertThat(updatedQuestion.getAnswerText()).isEqualTo(question.getAnswerText());
+        assertThat(updatedQuestion.getCategory()).isEqualTo(question.getCategory());
     }
 
     @Test
-    public void testDeleteById() {
-        //questionRepo.deleteById(null)
+    void testDeleteById() {
+        when(collection.findOneAndDelete(any(Document.class))).thenReturn(questionDoc);
+        questionRepo.save(question);
+
+        Question deletedQuestion = questionRepo.deleteById(question.get_id()).get();
+
+        assertThat(deletedQuestion).isNotNull();
+        assertThat(deletedQuestion.get_id()).isEqualTo(question.get_id());
+        assertThat(deletedQuestion.getQuestionText()).isEqualTo(question.getQuestionText());
+        assertThat(deletedQuestion.getAnswerText()).isEqualTo(question.getAnswerText());
+        assertThat(deletedQuestion.getCategory()).isEqualTo(question.getCategory());
     }
 }

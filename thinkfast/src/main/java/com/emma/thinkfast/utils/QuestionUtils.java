@@ -25,7 +25,7 @@ public class QuestionUtils {
         question.set_id(document.getString("_id"));
         question.setQuestionText(document.getString("questionText"));
         question.setAnswerText(document.getList("answerText", String.class));
-        question.setCategory(Enum.valueOf(Category.class, document.getString("category")));
+        question.setCategory(Enum.valueOf(Category.class, document.get("category").toString()));
         return question;
     }
 }
