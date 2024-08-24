@@ -31,7 +31,7 @@ public class UserUtils {
         user.setUsername(document.getString("username"));
         user.setPassword(document.getString("password"));
         user.setEmail(document.getString("email"));
-        user.setRole(Enum.valueOf(Role.class, document.getString("role")));
+        user.setRole(Enum.valueOf(Role.class, document.get("role").toString()));
         return user;
     }
 }

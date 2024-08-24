@@ -69,13 +69,9 @@ class QuestionRepositoryTest {
 
     @Test
     void testSave() {
-        Question foundQuestion = questionRepo.save(question);
+        Question savedQuestion = questionRepo.save(question);
         
-        assertThat(foundQuestion).isNotNull();
-        assertThat(foundQuestion.get_id()).isEqualTo(question.get_id());
-        assertThat(foundQuestion.getQuestionText()).isEqualTo(question.getQuestionText());
-        assertThat(foundQuestion.getAnswerText()).isEqualTo(question.getAnswerText());
-        assertThat(foundQuestion.getCategory()).isEqualTo(question.getCategory());
+        assertThat(savedQuestion).isNotNull().isEqualTo(question);
     }
 
     @Test
@@ -86,11 +82,7 @@ class QuestionRepositoryTest {
         questionRepo.save(question);
         Question foundQuestion = questionRepo.findById(question.get_id()).get();
 
-        assertThat(foundQuestion).isNotNull();
-        assertThat(foundQuestion.get_id()).isEqualTo(question.get_id());
-        assertThat(foundQuestion.getQuestionText()).isEqualTo(question.getQuestionText());
-        assertThat(foundQuestion.getAnswerText()).isEqualTo(question.getAnswerText());
-        assertThat(foundQuestion.getCategory()).isEqualTo(question.getCategory());
+        assertThat(foundQuestion).isNotNull().isEqualTo(question);
     }
 
     @SuppressWarnings("unchecked")
@@ -120,11 +112,8 @@ class QuestionRepositoryTest {
             .thenReturn(QuestionUtils.questionToDocument(question));
         Question updatedQuestion = questionRepo.updateById(question).get();
 
-        assertThat(updatedQuestion).isNotNull();
-        assertThat(updatedQuestion.get_id()).isEqualTo(question.get_id());
+        assertThat(updatedQuestion).isNotNull().isEqualTo(question);
         assertThat(updatedQuestion.getQuestionText()).isEqualTo("What is the name of Pablo Picasso?");
-        assertThat(updatedQuestion.getAnswerText()).isEqualTo(question.getAnswerText());
-        assertThat(updatedQuestion.getCategory()).isEqualTo(question.getCategory());
     }
 
     @Test
@@ -134,10 +123,6 @@ class QuestionRepositoryTest {
 
         Question deletedQuestion = questionRepo.deleteById(question.get_id()).get();
 
-        assertThat(deletedQuestion).isNotNull();
-        assertThat(deletedQuestion.get_id()).isEqualTo(question.get_id());
-        assertThat(deletedQuestion.getQuestionText()).isEqualTo(question.getQuestionText());
-        assertThat(deletedQuestion.getAnswerText()).isEqualTo(question.getAnswerText());
-        assertThat(deletedQuestion.getCategory()).isEqualTo(question.getCategory());
+        assertThat(deletedQuestion).isNotNull().isEqualTo(question);
     }
 }
