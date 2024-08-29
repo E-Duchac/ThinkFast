@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.bson.Document;
 
+import com.emma.thinkfast.enums.Category;
 import com.emma.thinkfast.enums.Role;
 import com.emma.thinkfast.models.User;
 
@@ -32,6 +33,7 @@ public class UserUtils {
         user.setPassword(document.getString("password"));
         user.setEmail(document.getString("email"));
         user.setRole(Enum.valueOf(Role.class, document.get("role").toString()));
+        user.setFaveCategories(document.getList("faveCategories", Category.class));
         return user;
     }
 }
