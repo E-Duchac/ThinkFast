@@ -21,6 +21,7 @@ public class UserUtils {
         map.put("password", user.getPassword());
         map.put("email", user.getEmail());
         map.put("role", user.getRole());
+        map.put("faveCategories", user.getFaveCategories());
         return new Document(map);
     }
 

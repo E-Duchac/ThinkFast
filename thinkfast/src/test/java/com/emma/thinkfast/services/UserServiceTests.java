@@ -1,16 +1,12 @@
 package com.emma.thinkfast.services;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
-import org.bson.Document;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -22,73 +18,41 @@ import com.emma.thinkfast.enums.Category;
 import com.emma.thinkfast.enums.Role;
 import com.emma.thinkfast.models.User;
 import com.emma.thinkfast.repositories.UserRepository;
-import com.emma.thinkfast.utils.UserUtils;
-import com.mongodb.client.FindIterable;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoCursor;
-import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.result.InsertOneResult;
 
 class UserServiceTests {
     @Mock
-    private MongoClient mongoClient;
-    @Mock
-    private MongoDatabase mongoDatabase;
-    @Mock
-    private MongoCollection<Document> collection;
-
-    @Mock
     private PasswordEncoder passwordEncoder;
-
+    @Mock
     private UserRepository userRepo;
-    private UserServiceImpl userService;
-    private FindIterable<Document> findIterable;
-    private MongoCursor<Document> cursor;
-    private User user;
-    private Document userDoc;
 
-    @SuppressWarnings("unchecked")
+    private UserServiceImpl userService;
+    private User user;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        when(mongoClient.getDatabase(anyString())).thenReturn(mongoDatabase);
-        when(mongoDatabase.getCollection(anyString())).thenReturn(collection);
-        userRepo = new UserRepository(mongoClient);
         userService = new UserServiceImpl(userRepo, passwordEncoder);
+
+        String rawPassword = "electric-spider";
+        String encodedPassword = "encoded-electric-spider";
+        when(passwordEncoder.encode(rawPassword)).thenReturn(encodedPassword);
 
         user = new User();
         user.set_id("ignore-me-test-id");
         user.setFirstName("Miles");
         user.setLastName("Morales");
         user.setUsername("whatsUpDanger");
-        user.setPassword("electric-spider");
+        user.setPassword(rawPassword);
         user.setEmail("whatsUpDanger@email.com");
         user.setRole(Role.ROLE_STUDENT);
         List<Category> faveCategoriesList = new ArrayList<Category>();
         faveCategoriesList.add(Category.SCIENCE);
         user.setFaveCategories(faveCategoriesList);
-
-        userDoc = UserUtils.userToDocument(user);
-
-        findIterable = mock(FindIterable.class);
-        cursor = mock(MongoCursor.class);
-        when(collection.insertOne(any(Document.class))).thenReturn(mock(InsertOneResult.class));
-        when(collection.find(any(Document.class))).thenReturn(findIterable);
-        when(findIterable.first()).thenReturn(userDoc);
-        when(findIterable.iterator()).thenReturn(cursor);
-        when(cursor.hasNext()).thenReturn(true, false);
-        when(cursor.next()).thenReturn(userDoc);
-        when(collection.findOneAndDelete(any(Document.class))).thenReturn(userDoc);
-    }
-
-    @AfterEach
-    void tearDown() {
-        collection.drop();
     }
 
     @Test
     void testLoadUserByUsername() {
+        when(userRepo.findByUsername(user.getUsername())).thenReturn(Optional.of(user));
         userService.registerNewUser(user);
 
         UserDetails foundUserDetails = userService.loadUserByUsername(user.getUsername());
@@ -98,13 +62,17 @@ class UserServiceTests {
 
     @Test
     void registerNewUser() {
+        when(userRepo.save(user)).thenReturn(user);
+
         User registeredUser = userService.registerNewUser(user);
 
         assertThat(registeredUser).isEqualTo(user);
+        assertThat(registeredUser.getPassword()).isEqualTo("encoded-electric-spider");
     }
 
     @Test
     void testGetUserById() {
+        when(userRepo.findById(user.get_id())).thenReturn(Optional.of(user));
         userService.registerNewUser(user);
 
         User foundUser = userService.getUserById(user.get_id());
@@ -114,6 +82,7 @@ class UserServiceTests {
 
     @Test
     void testGetUserByEmail() {
+        when(userRepo.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
         userService.registerNewUser(user);
 
         User foundUser = userService.getUserByEmail(user.getEmail());
@@ -123,6 +92,7 @@ class UserServiceTests {
 
     @Test
     void testGetUserByUsername() {
+        when(userRepo.findByUsername(user.getUsername())).thenReturn(Optional.of(user));
         userService.registerNewUser(user);
 
         User foundUser = userService.getUserByUsername(user.getUsername());
@@ -132,6 +102,7 @@ class UserServiceTests {
 
     @Test
     void testUpdateUser() {
+        when(userRepo.updateById(user)).thenReturn(Optional.of(user));
         userService.registerNewUser(user);
 
         user.setEmail("spiderVenom@email.com");
@@ -143,6 +114,7 @@ class UserServiceTests {
 
     @Test
     void testDeleteUser() {
+        when(userRepo.deleteById(user.get_id())).thenReturn(Optional.of(user));
         userService.registerNewUser(user);
 
         User deletedUser = userService.deleteUser(user.get_id());
