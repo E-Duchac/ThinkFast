@@ -1,13 +1,9 @@
 package com.emma.thinkfast.services;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
-import org.bson.Document;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -16,39 +12,20 @@ import org.mockito.MockitoAnnotations;
 import com.emma.thinkfast.enums.Category;
 import com.emma.thinkfast.models.Question;
 import com.emma.thinkfast.repositories.QuestionRepository;
-import com.emma.thinkfast.utils.QuestionUtils;
-import com.mongodb.client.FindIterable;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoCursor;
-import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.result.InsertOneResult;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 class QuestionServiceTest {
     @Mock
-    private MongoClient mongoClient;
-    @Mock
-    private MongoDatabase mongoDatabase;
-    @Mock
-    private MongoCollection<Document> collection;
-
     private QuestionRepository questionRepo;
-    private QuestionServiceImpl questionService;
-    private FindIterable<Document> findIterable;
-    private MongoCursor<Document> cursor;
-    private Question question;
-    private Document questionDoc;
 
-    @SuppressWarnings("unchecked")
+    private QuestionServiceImpl questionService;
+    private Question question;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        when(mongoClient.getDatabase(anyString())).thenReturn(mongoDatabase);
-        when(mongoDatabase.getCollection(anyString())).thenReturn(collection);
-        questionRepo = new QuestionRepository(mongoClient);
         questionService = new QuestionServiceImpl(questionRepo);
 
         question = new Question();
@@ -58,23 +35,6 @@ class QuestionServiceTest {
         answerList.add("Bat");
         question.setAnswerText(answerList);
         question.setCategory(Enum.valueOf(Category.class, "SCIENCE"));
-
-        questionDoc = QuestionUtils.questionToDocument(question);
-
-        findIterable = mock(FindIterable.class);
-        cursor = mock(MongoCursor.class);
-        when(collection.insertOne(any(Document.class))).thenReturn(mock(InsertOneResult.class));
-        when(collection.find(any(Document.class))).thenReturn(findIterable);
-        when(findIterable.first()).thenReturn(questionDoc);
-        when(findIterable.iterator()).thenReturn(cursor);
-        when(cursor.hasNext()).thenReturn(true, false);
-        when(cursor.next()).thenReturn(questionDoc);
-        when(collection.findOneAndDelete(any(Document.class))).thenReturn(questionDoc);
-    }
-
-    @AfterEach
-    void tearDown() {
-        collection.drop();
     }
 
     @Test
@@ -97,6 +57,8 @@ class QuestionServiceTest {
 
     @Test
     void testSaveQuestion() {
+        when(questionRepo.save(question)).thenReturn(question);
+
         Question savedQuestion = questionService.saveQuestion(question);
 
         assertThat(savedQuestion).isEqualTo(question);
@@ -104,6 +66,8 @@ class QuestionServiceTest {
 
     @Test
     void testGetQuestionById() {
+        when(questionRepo.findById(question.get_id())).thenReturn(Optional.of(question));
+        
         questionService.saveQuestion(question);
 
         Question foundQuestion = questionService.getQuestionById(question.get_id());
@@ -113,6 +77,10 @@ class QuestionServiceTest {
 
     @Test
     void getQuestionsByCategory() {
+        List<Question> scienceQuestions = new ArrayList<Question>();
+        scienceQuestions.add(question);
+        when(questionRepo.findByCategory("SCIENCE")).thenReturn(scienceQuestions);
+
         questionService.saveQuestion(question);
 
         List<Question> foundQuestions = questionService.getQuestionsByCategory("SCIENCE");
@@ -126,8 +94,7 @@ class QuestionServiceTest {
         questionService.saveQuestion(question);
 
         question.setQuestionText("What homonym refers to both a blunt wooden implement used for striking, and a small flying mammal?");
-        Document updatedQuestionDoc = QuestionUtils.questionToDocument(question);
-        when(collection.findOneAndReplace(any(), any())).thenReturn(updatedQuestionDoc);
+        when(questionRepo.updateById(question)).thenReturn(Optional.of(question));
 
         Question updatedQuestion = questionService.updateQuestion(question);
 
@@ -139,6 +106,7 @@ class QuestionServiceTest {
 
     @Test
     void testDeleteQuestion() {
+        when(questionRepo.deleteById(question.get_id())).thenReturn(Optional.of(question));
         questionService.saveQuestion(question);
 
         Question deletedQuestion = questionService.deleteQuestion(question.get_id());
