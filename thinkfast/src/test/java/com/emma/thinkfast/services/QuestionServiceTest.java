@@ -51,8 +51,25 @@ class QuestionServiceTest {
         questionList.add(q3);
 
         List<Question> scrambleTrimmedList = questionService.scrambleTrim(questionList, 3);
-
-        assertThat(scrambleTrimmedList).isNotEqualTo(questionList);
+        
+        //Retry functionality. It's not a problem for the application if the scrambleTrim method occasionally
+        //returns the same order (though it would be trememdously unlikely as the question list grows).
+        //However, if this happens in a test, the test should be rerun to verify that scrambling is still
+        //happening and is not broken.
+        int maxRetries = 3;
+        boolean isScrambled = false;
+        for (int i = 0; i < maxRetries; i++) {
+            if (!scrambleTrimmedList.equals(questionList)) {
+                isScrambled = true;
+                break;
+            }
+            scrambleTrimmedList = questionService.scrambleTrim(questionList, 3);
+        }
+        
+        assertThat(isScrambled).isTrue();
+        assertThat(scrambleTrimmedList)
+            .containsExactlyInAnyOrderElementsOf(questionList)
+            .doesNotContainSequence(questionList);
     }
 
     @Test

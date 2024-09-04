@@ -61,22 +61,50 @@ class QuestionControllerTest {
     @Test
     void testGetQuestionsByCategory() {
         List<Question> questionsByCategory = new ArrayList<Question>();
+        questionsByCategory.add(question);
+
+        when(questionService.getQuestionsByCategory("SOCIAL_STUDIES")).thenReturn(questionsByCategory);
+    
+        ResponseEntity<List<Question>> responseEntity = questionController.getAllQuestionsByCategory("SOCIAL_STUDIES");
         
-        when(questionService.getQuestionsByCategory(Category.SOCIAL_STUDIES)).thenReturn()
+        assertThat(responseEntity).isNotNull();
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
     @Test
     void testGetQuestionsByMultiCategory() {
-        CustomQuizRequest customRequest;
+        CustomQuizRequest customRequest = new CustomQuizRequest();
+        customRequest.setCategories(new String[]{"SOCIAL_STUDIES"});
+        customRequest.setQuizLength(5);
+
+        List<Question> questionsByCategory = new ArrayList<Question>();
+        questionsByCategory.add(question);
+
+        when(questionService.getQuestionsByCategory("SOCIAL_STUDIES")).thenReturn(questionsByCategory);
+
+        ResponseEntity<List<Question>> responseEntity = questionController.getAllQuestionsByCategory("SOCIAL_STUDIES");
+        
+        assertThat(responseEntity).isNotNull();
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
     @Test
     void testUpdateQuestion() {
+        when(questionService.updateQuestion(question)).thenReturn(question);
 
+        ResponseEntity<String> responseEntity = questionController.updateQuestion(question.get_id(), question);
+
+        assertThat(responseEntity).isNotNull();
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
     @Test
     void testDeleteQuestion() {
+        when(questionService.deleteQuestion(question.get_id())).thenReturn(question);
+        
+        ResponseEntity<String> responseEntity = questionController.deleteQuestion(question.get_id());
 
+        assertThat(responseEntity).isNotNull();
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 }
