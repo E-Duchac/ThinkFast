@@ -9,7 +9,7 @@ import com.emma.thinkfast.enums.Category;
 import com.emma.thinkfast.models.Question;
 
 public class QuestionUtils {
-    private QuestionUtils () {}
+    private QuestionUtils() {}
     
     public static Document questionToDocument(Question question) {
         Map<String, Object> map = new HashMap<>();
