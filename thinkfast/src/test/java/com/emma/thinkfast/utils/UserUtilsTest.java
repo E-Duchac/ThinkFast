@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.bson.Document;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,7 +41,10 @@ class UserUtilsTest {
         map.put("password", user.getPassword());
         map.put("email", user.getEmail());
         map.put("role", user.getRole());
-        map.put("faveCategories", user.getFaveCategories());
+        map.put("faveCategories", user.getFaveCategories().stream()
+            .map(categoryName -> String.valueOf(categoryName))
+            .collect(Collectors.toList())
+        );
         document.putAll(map);
     }
 

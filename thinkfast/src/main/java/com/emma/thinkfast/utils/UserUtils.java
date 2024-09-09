@@ -1,7 +1,9 @@
 package com.emma.thinkfast.utils;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.bson.Document;
 
@@ -34,7 +36,11 @@ public class UserUtils {
         user.setPassword(document.getString("password"));
         user.setEmail(document.getString("email"));
         user.setRole(Enum.valueOf(Role.class, document.get("role").toString()));
-        user.setFaveCategories(document.getList("faveCategories", Category.class));
+        List<String> faveCategories = document.getList("faveCategories", String.class);
+        List<Category> faveCategoryList = faveCategories.stream()
+            .map(Category::valueOf)
+            .collect(Collectors.toList());
+        user.setFaveCategories(faveCategoryList);
         return user;
     }
 }
