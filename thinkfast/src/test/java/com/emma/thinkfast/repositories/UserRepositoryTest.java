@@ -6,6 +6,9 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.bson.Document;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 
+import com.emma.thinkfast.enums.Category;
 import com.emma.thinkfast.enums.Role;
 import com.emma.thinkfast.models.User;
 import com.emma.thinkfast.utils.UserUtils;
@@ -55,6 +59,9 @@ class UserRepositoryTest {
         user.setPassword("spiderman");
         user.setEmail("peterparker@mail.com");
         user.setRole(Enum.valueOf(Role.class, "ROLE_STUDENT"));
+        List<Category> faveCategories = new ArrayList<Category>();
+        faveCategories.add(Category.SCIENCE);
+        user.setFaveCategories(faveCategories);
 
         userDoc = UserUtils.userToDocument(user);
 

@@ -1,6 +1,7 @@
 package com.emma.thinkfast.utils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,10 +42,11 @@ class UserUtilsTest {
         map.put("password", user.getPassword());
         map.put("email", user.getEmail());
         map.put("role", user.getRole());
-        map.put("faveCategories", user.getFaveCategories().stream()
-            .map(categoryName -> String.valueOf(categoryName))
-            .collect(Collectors.toList())
-        );
+        List<String> faveCategoryStrings = new ArrayList<String>();
+        for (Category category : faveCategories) {
+            faveCategoryStrings.add(category.toString());
+        }
+        map.put("faveCategories", faveCategoryStrings);
         document.putAll(map);
     }
 

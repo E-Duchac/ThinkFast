@@ -1,5 +1,6 @@
 package com.emma.thinkfast.utils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +24,12 @@ public class UserUtils {
         map.put("password", user.getPassword());
         map.put("email", user.getEmail());
         map.put("role", user.getRole());
-        map.put("faveCategories", user.getFaveCategories());
+        List<Category> faveCategories = user.getFaveCategories();
+        List<String> faveCategoriesList = new ArrayList<String>();
+        for (Category category : faveCategories) {
+            faveCategoriesList.add(category.toString());
+        }
+        map.put("faveCategories", faveCategoriesList);
         return new Document(map);
     }
 
